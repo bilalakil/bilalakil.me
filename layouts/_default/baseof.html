@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <title>{{ block "title" . }}{{ .Site.Title }}{{ end }}</title>
+    <link href="{{ .Site.BaseURL }}/main.css" rel="stylesheet"></link>
   </head>
   <body>
-    {{ block "main" . }}{{ end }}
-    {{ block "footer" . }}{{ end }}
+    <div class="container {{ if .IsHome }}home{{ else }}{{ .Type }}{{ end }}">
+      <div class="container-inner">
+        {{ block "main" . }}{{ end }}
+      </div>
+    </div>
+    <script>WebFontConfig = { google: { families: ['Anonymous Pro:400,700', 'Oswald', 'Open Sans:400,700'] } };</script>
+    <script async src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
   </body>
 </html>

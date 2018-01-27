@@ -1,0 +1,12 @@
+{{ define "main" }}
+    <a class="float-header" href="{{ .Site.BaseURL }}">
+      <header>
+        <h1>Bill's Spills</h1>
+        <p class="name">Bilal Akil</p>
+      </header>
+    </a>
+    <main class="main">
+      <h2>{{ .Title }}</h2>
+      {{ .Content }}
+    </main>
+{{ end }}

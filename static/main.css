@@ -1,0 +1,325 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* END CSS RESET */
+
+*,
+*:before,
+*:after
+{
+  box-sizing: border-box;
+}
+
+body
+{
+  margin: 0;
+  min-width: 20rem;
+
+  font-family: 'Anonymous Pro', monospace;
+}
+
+.container+.container
+{
+  border-top: solid 5rem grey;
+}
+
+.big-header
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem;
+  min-height: 100vh;
+
+  background: linear-gradient(120deg, black 0%, #672748 100%);
+}
+.big-header .card
+{
+  padding: 1rem;
+  max-width: 40rem;
+
+  background: white;
+}
+.big-header .card-inner
+{
+  border: solid 0.25rem black;
+}
+.big-header .gimmick,
+.big-header .title h1,
+.big-header .name,
+.big-header .detail
+{
+  display: block;
+  padding: 1rem;
+}
+.big-header .title,
+.big-header .name,
+.big-header .secondary,
+.big-header .detail+.detail
+{
+  border-top: solid 0.15rem black;
+}
+.big-header .gimmick-inner
+{
+  margin-left: auto;
+  margin-right: auto;
+  width: 10rem;
+  height: 8rem;
+}
+.big-header .title h1
+{
+  font-size: 3rem;
+  font-weight: bold;
+}
+.big-header .name
+{
+  font-size: 1.4rem;
+}
+.big-header .detail
+{
+  position: relative;
+
+  padding: 1.75rem 1.5rem 1.5rem 1.5rem;
+}
+.big-header a.detail
+{
+  color: inherit;
+
+  transition: background 0.5s ease;
+}
+.big-header a.detail:hover
+{
+  background: #ccc;
+}
+.big-header .detail .label
+{
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.75em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.float-header
+{
+  display: block;
+
+  margin-bottom: 2rem;
+  border-bottom: solid 2px black;
+
+  color: inherit;
+  text-decoration: none;
+}
+.float-header header
+{
+  padding-bottom: 1rem;
+}
+.float-header h1
+{
+  display: table-caption;
+
+  margin-bottom: 1rem;
+
+  font-size: 3rem;
+  font-weight: bold;
+}
+.float-header .name
+{
+  font-size: 1.4rem;
+}
+
+.main h2,
+.main h3,
+.main h4,
+.main p,
+.main ol,
+.main ul,
+.main pre
+{
+  margin-bottom: 2rem;
+}
+.main h2
+{
+  font-size: 2rem;
+  font-weight: bold;
+}
+.main h3
+{
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.main h4
+{
+  font-size: 1.4rem;
+}
+.main p,
+.main ol,
+.main ul
+{
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.4;
+}
+.main ol,
+.main ul
+{
+  list-style-position: inside;
+}
+.main li > ol,
+.main li > ul
+{
+  margin-bottom: 0;
+  padding-left: 1.5rem;
+}
+.main ol
+{
+  list-style-type: square;
+}
+.main ul
+{
+  list-style-type: decimal;
+}
+.main pre
+{
+  padding: 1rem 1.5rem;
+
+  overflow-x: auto;
+  
+  background: #ccc;
+  font-family: 'Anonymous Pro', monospace;
+}
+.main a[href]
+{
+  color: #672748;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.main em
+{
+  font-style: italic;
+}
+.main strong
+{
+  font-weight: bold;
+}
+.main code
+{
+  padding: 0.2rem 0.5rem;
+
+  background: #ccc;
+  font-family: 'Anonymous Pro', monospace;
+}
+.main > *:last-child
+{
+  margin-bottom: 0;
+}
+
+.page .container-inner
+{
+  padding: 2rem;
+}
+
+@media (min-width: 40rem)
+{
+  .container+.container
+  {
+    border-top-width: 10rem;
+  }
+
+  .big-header .primary
+  {
+    display: flex;
+    flex-direction: row;
+  }
+  .big-header .gimmick-inner
+  {
+    width: 20rem;
+    height: 14rem;
+  }
+  .big-header .title
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+
+    border-top: none;
+    border-left: solid 0.15rem black;
+  }
+  .big-header .secondary
+  {
+    display: flex;
+  }
+  .big-header .detail
+  {
+    flex-grow: 1;
+  }
+  .big-header .detail+.detail
+  {
+    border-top: none;
+    border-left: solid 0.15rem black;
+  }
+
+  .float-header
+  {
+    float: left;
+
+    margin-right: 3rem;
+  }
+
+  .page .container-inner
+  {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 4rem;
+    max-width: 48rem;
+  }
+}
