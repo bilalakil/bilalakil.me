@@ -17,12 +17,24 @@
 WebFontConfig = { google: { families: ['Anonymous Pro:400,700', 'Oswald', 'Open Sans:400,700'] } };
 
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
+function gtag() { dataLayer.push(arguments); }
 gtag('js', new Date());
-
 gtag('config', 'UA-113123792-1');
+
+function load(src) {
+  let wf = document.createElement('script'),
+      s = document.scripts[0];
+      
+  wf.src = src;
+  wf.async = true;
+  
+  s.parentNode.insertBefore(wf, s);
+}
+
+setTimeout(() => {
+  load('https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
+  load('https://www.googletagmanager.com/gtag/js?id=UA-113123792-1');
+}, 50);
 </script>
-    <script async src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113123792-1"></script>
   </body>
 </html>
