@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <title>{{ block "title" . }}{{ .Site.Title }}{{ end }}</title>
-    <link href="{{ .Site.BaseURL }}main.css" rel="stylesheet"></link>
+    
+    {{ partialCached "head/inline-styles.html" . }}
   </head>
   <body>
     <div class="container {{ if .IsHome }}home{{ else }}{{ .Type }}{{ end }}">
