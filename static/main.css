@@ -63,6 +63,13 @@ body
 
   font-family: 'Anonymous Pro', monospace;
 }
+img
+{
+  display: block;
+
+  max-width: 100%;
+  max-height: 100%;
+}
 
 .container+.container
 {
@@ -288,6 +295,7 @@ body
   .big-header .title
   {
     display: flex;
+    flex-grow: 1;
     flex-direction: column;
     justify-content: flex-end;
 
