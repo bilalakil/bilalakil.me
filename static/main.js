@@ -6,6 +6,8 @@ gtag('js', new Date());
 gtag('config', 'UA-113123792-1');
 
 (() => {
+  const NUM_GIMMICKS = 2;
+
   function loadScript(src) {
     let wf = document.createElement('script'),
         s = document.scripts[0];
@@ -17,7 +19,6 @@ gtag('config', 'UA-113123792-1');
   }
 
   function loadGimmick() {
-    const numGimmicks = 1;
     const alt = 'Randomised, hand-made low quality drawing.';
 
     const gimmickInner = document.querySelector('.gimmick-inner');
@@ -26,7 +27,7 @@ gtag('config', 'UA-113123792-1');
       return;
     }
 
-    const src = 'gimmicks/' + (Math.floor(Math.random() * numGimmicks) + 1).toString() + '.svg';
+    const src = 'gimmicks/' + (Math.floor(Math.random() * NUM_GIMMICKS) + 1).toString() + '.svg';
 
     const img = document.createElement('img');
     img.src = src;
