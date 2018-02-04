@@ -27,7 +27,14 @@ gtag('config', 'UA-113123792-1');
       return;
     }
 
-    const src = 'gimmicks/' + (Math.floor(Math.random() * NUM_GIMMICKS) + 1).toString() + '.svg';
+    let query = window.location.search.match(/[?&]gimmick=(\d+)(?:&|$)/);
+    query = query && parseInt(query[1]);
+    
+    const src = 'gimmicks/' + (
+      query && query <= NUM_GIMMICKS
+        ? query
+        : (Math.floor(Math.random() * NUM_GIMMICKS) + 1)
+      ).toString() + '.svg';
 
     const img = document.createElement('img');
     img.src = src;
