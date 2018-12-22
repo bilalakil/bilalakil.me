@@ -1,5 +1,6 @@
 +++
 title = "Getting Started and Productive with LaTeX (BasicTeX) on OS X (Terminal)"
+shorttitle = "LaTeX (BasicTeX) + OS X (Terminal)"
 +++
 
 LaTeX is old. That's good because its output is second to none. However, it's also bad as it's less intuitive and more "clunky" than most modern technologies.

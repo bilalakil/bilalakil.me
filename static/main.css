@@ -279,7 +279,7 @@ img
 {
   .container+.container
   {
-    border-top-width: 10rem;
+    border-top-width: 5rem;
   }
 
   .big-header .primary

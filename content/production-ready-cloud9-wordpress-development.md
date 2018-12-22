@@ -1,5 +1,6 @@
 +++
 title = "Production-ready Cloud9 + WordPress Development"
+shorttitle = "Cloud9 + WordPress Development"
 +++
 
 Hopefully you, like many, are using or have at least tried [Cloud9](https://c9.io/). If you have, you've probably liked it and thought it was pretty nifty, but maybe are not yet prepared to use it for developing a serious project and migrating the result to production from there.

@@ -1,6 +1,9 @@
 +++
 title = "Beginner's Guide to CloudFormation and AWS CLI: Part 1"
+shorttitle = "CloudFormation + AWS CLI: Part 1"
 +++
+
+_Sorry, no part 2..._
 
 AWS keeps pushing the boundaries in Cloud Computing, and we all want to take a bite. The benefits are countless, and the cost predictable, making it suitable for individuals, startups, small companies, and even the largest of enterprises (like Amazon themselves).
 
@@ -153,5 +156,5 @@ When you find the set of commands you're happy with, it's worth adding them as a
 
 Now even if you return to this template half a year after having last touched it, you'll still know how you went about using it. Keep this up to date and you'll have a self-contained, instructional, maintainable CloudFormation template – now you're in business!
 
-In part 2 (which is coming soon), we'll stop working with an empty template and actually bring some infrastructure up. Looking forward to seeing you there. Also, feel free to email me at [mail@bilalakil.me](maito:mail@bilalakil.me) if you have any questions or comments at all.
+Feel free to email me at [mail@bilalakil.me](maito:mail@bilalakil.me) if you have any questions or comments.
 

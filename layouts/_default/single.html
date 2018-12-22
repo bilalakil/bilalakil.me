@@ -1,3 +1,11 @@
+{{ define "title" }}
+  {{ .Site.Title }} |
+  {{ if isset .Params "shorttitle" }}
+    {{ .Params.shorttitle }}
+  {{ else }}
+    {{ .Title }}
+  {{ end }}
+{{ end }}
 {{ define "main" }}
     <a class="float-header" href="{{ .Site.BaseURL }}">
       <header class="title">

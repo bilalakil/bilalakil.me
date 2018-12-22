@@ -1,32 +1,18 @@
 {{ define "main" }}
-    <header class="big-header">
-      <div class="card">
-        <div class="card-inner">
-          <div class="primary">
-            <div class="gimmick">
-              <div class="gimmick-inner">
-              </div>
-            </div>
-            <div class="title">
-              <h1>Bill's<br/>Spills</h1>
-              <p class="name">Bilal Akil</p>
-            </div>
-          </div>
-          <div class="secondary">
-            <a class="detail" href="mailto:mail@bilalakil.me">
-              <span class="label">Email</span>
-              mail@bilalakil.me
-            </a>
-            <a class="detail" href="https://twitter.com/bilalakil">
-              <span class="label">Twitter</span>
-              @bilalakil
-            </a>
-            <div class="detail">
-              <span class="label">Usually in</span>
-              Sydney AUS
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+    <main class="main">
+      <h2>Me</h2>
+      <p>I'm <span>Bilal Akil</span>, husband and soon to be father. I try to find balance in life and my relationships, while making (and playing) games. That, and trying to fund it all, is enough to keep me busy...</p>
+      
+      <h2><a href="https://www.doodad.games">Doodad Games</a></h2>
+      <p>I'm one of its two founders. William, the other, is unfortunately devoid of an online presence. <a href="https://www.villager.game">Villager</a> is our flagship game, and I suppose will slowly consume us for the rest of our lives. We dabble in experimental projects in between.</p>
+
+      <h2>Tech Posts</h2>
+      <p>Although I can't commit the time to continue writing, it appeared that the following posts were helping people, so I kept them alive:</p>
+      <ul>
+        <li><a href="{{ ref . "simplepagination.md" }}">simplePagination</a></li>
+        <li><a href="{{ ref . "getting-started-and-productive-with-latex-basictex-on-os-x-terminal.md" }}">Getting Started and Productive with LaTeX (BasicTeX) on OS X (Terminal)</a></li>
+        <li><a href="{{ ref . "production-ready-cloud9-wordpress-development.md" }}">Production-ready Cloud9 + WordPress Development</a></li>
+        <li><a href="{{ ref . "beginners-guide-to-cloudformation-and-aws-cli-part-1.md" }}">Beginner's Guide to CloudFormation and AWS CLI: Part 1</a> (Sorry, no part 2...)</li>
+      </ul>
+    </main>
 {{ end }}

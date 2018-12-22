@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -9,7 +9,43 @@
     {{ partialCached "head/inline-styles.html" . }}
   </head>
   <body>
-    <div class="container {{ if .IsHome }}home{{ else }}{{ .Type }}{{ end }}">
+    {{ if .IsHome }}
+      <div class="container home">
+        <div class="container-inner">
+          <header class="big-header">
+            <div class="card">
+              <div class="card-inner">
+                <div class="primary">
+                  <div class="gimmick">
+                    <div class="gimmick-inner">
+                    </div>
+                  </div>
+                  <div class="title">
+                    <h1>Bill's<br/>Spills</h1>
+                    <p class="name">Bilal Akil</p>
+                  </div>
+                </div>
+                <div class="secondary">
+                  <a class="detail" href="mailto:mail@bilalakil.me">
+                    <span class="label">Email</span>
+                    mail@bilalakil.me
+                  </a>
+                  <a class="detail" href="https://twitter.com/bilalakil">
+                    <span class="label">Twitter</span>
+                    @bilalakil
+                  </a>
+                  <div class="detail">
+                    <span class="label">Usually in</span>
+                    Sydney AUS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+        </div>
+      </div>
+    {{ end }}
+    <div class="container {{ .Type }}">
       <div class="container-inner">
         {{ block "main" . }}{{ end }}
       </div>
