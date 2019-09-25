@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - CloudFormation + AWS CLI: Part 1</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>Beginner's Guide to CloudFormation and AWS CLI: Part 1</h2>
+
+<p><em>Sorry, no part 2…</em></p>
+<p>AWS keeps pushing the boundaries in Cloud Computing, and we all want to take a bite. The benefits are countless, and the cost predictable, making it suitable for individuals, startups, small companies, and even the largest of enterprises (like Amazon themselves).</p>
+<p>When you do get started, however, you find yourself presented with 55 colourful, modern-looking icons on the console, and many acronyms, each representing a different service offering from AWS.</p>
+<p>This series is focused on one of those 55: <a href="https://aws.amazon.com/cloudformation/">CloudFormation</a>, and if you’re reading it, you’re probably keen on getting started. Why bother? Infrastructure as code, and thus version controllable infrastructure. Trivially rollback-able stacks. One command to deploy a near-arbitrarily complex infrastructure, and similarly to take it down. There’s tremendous potential.</p>
+<p>My favourites are that I’m not encumbered by the myriad of options the console presents, and that it’s reproducible by nature, allowing me to do what I do best: trial and error.</p>
+<p>You, though. You’ve seen a CloudFormation template or three before, and understand some of the concepts behind the technology, but have discovered that writing them isn’t as simple as it seems. This series will try and guide you through some first steps, and some practices to help you find your feet when you’re out on your own.</p>
+<h3 id="preamble">Preamble</h3>
+<p>This post is part 1 of a series. It will cover what working environment is assumed throughout the series, methods of writing CloudFormation templates (whilst avoiding plain JSON), and attempting deployments and validation with the AWS CLI.</p>
+<p>A specific use case will be targeted in parts 2 and onwards, where we’ll incrementally add features to a working template. Here are links to the others:</p>
+<ul>
+<li>Part 2: coming soon. Exploring the format of CloudFormation templates; navigating CloudFormation resource documentation; investigating errors in creation of a stack; getting an EC2 instance up and running in a stack; and taking down that stack.</li>
+</ul>
+<p>References to how knowledge was attained will be made throughout the series, hopefully helping develop some good habits for when you’re off on your own, trying to figure out how to do what you want to do.</p>
+<p>The series assumes you’re comfortable with basic programming and use of a Linux-like terminal in general, and will not go into any detail in those regards. If you’re not quite at that point yet, I’d be more than happy to refer some great reads to get you closer – just message me and ask.</p>
+<h3 id="environment">Environment</h3>
+<p>This guide will use tidbits of the AWS CLI as opposed to the console. If you want to get started with it, all I can recommend is the <a href="https://ig.nore.me/2014/07/introduction-to-the-aws-cli/">article that guided myself</a>.</p>
+<p>Before continuing, ensure that you can comfortably run this command:</p>
+<pre><code>aws cloudformation list-stacks</code></pre>
+<p>Throughout the series we’ll use the AWS CLI to verify and deploy our CloudFormation templates, check the progress and output of our stack, delete the stack, and wait for transitions in its state so we can easily chain commands.</p>
+<p>If you’re not sure what a stack is, perhaps this <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-whatis-concepts.html">AWS CloudFormation Concepts article</a> (which I found by Googling “CloudFormation stack”) can help explain. It covers other basic concepts too, which may come in handy.</p>
+<p>I won’t assume any knowledge or experience in the AWS API, other than what I just mentioned: that you’ve got it working.</p>
+<h3 id="writing-cloudformation-templates">Writing CloudFormation Templates</h3>
+<p>Although the final version of a CloudFormation template must be JSON, that doesn’t necessarily mean that JSON is what you need to actually work with. Since the notation primarily acts as a form of data storage, as opposed to a programming language, it lacks basic features like comments and variables which become essential as your templates begin to grow.</p>
+<p>As many developers before us have faced this problem, existing solutions like domain-specific languages (or DSLs) exist (including <a href="https://github.com/stevenjack/cfndsl">cfndsl</a>, which even has a <a href="https://github.com/neillturner/cfndsl_examples">repository filled with examples</a>), and those are great. It should be easy to look around and find other options if you’re so willing.</p>
+<p>However it’s also pretty easy to do your own thing here too, as I chose to do with Node.js:</p>
+<pre><code>const instanceType = "t2.nano";
+const numInstances = 5;
+
+let template = {
+  ...
+};
+
+for(let i = 1; i &lt;= numInstances; ++i) {
+  template.Resources["EC2Instance" + i] = {
+    ...
+  };
+}
+
+console.log(JSON.stringify(template));</code></pre>
+<p>Whichever method you choose is fine, however I strongly recommend using <em>something</em> other than plain JSON.</p>
+<p>Node.js will be used throughout the series as it presents nothing new to learn – the JavaScript used will be simple and easy enough to follow even with just a little programming experience. In the snippet above all I’m doing is building up an object, and outputting it as JSON. I’d run that script via <code>node my-template.js &gt; my-template.json</code> and then feed that output file into the AWS CLI.</p>
+<p>Pick your poison before continuing – the remainder of the guide will assume you’ve got your method of compiling to JSON sorted out.</p>
+<h3 id="validating-and-attempting-deployments-with-the-cli">Validating and Attempting Deployments With the CLI</h3>
+<p>The AWS CLI has great help utilities. If you type <code>aws help</code>, you’ll find a big list of all of the available subcommands. In particular, we’ll find <code>cloudformation</code> in that list. <a href="https://www.thegeekstuff.com/2010/02/unix-less-command-10-tips-for-effective-navigation">This article</a> can help get you navigating and searching more efficiently in <code>less</code>, which is the command line tool almost always used to explore help and <code>man</code> pages.</p>
+<p>You can then continue and type <code>aws cloudformation help</code> to find the options in that subcommand, where you’ll find the <code>create-stack</code> subcommand.</p>
+<p>The chain goes on. Typing <code>aws cloudformation create-stack help</code> will show you all of the details regarding executing that command. Now we’re looking at the specifics: what we need is <code>--stack-name</code> and <code>--template-body</code> (because <code>--template-url</code> only works with S3). The example at the bottom of that help page even shows us how to specify a template file instead of providing the JSON verbatim into the command:</p>
+<pre><code>aws cloudformation create-stack --stack-name myteststack --template-body file:////home//local//test//sampletemplate.json
+</code></pre>
+<p>Note: I’m not sure about all the double slashes in their example. In my experience providing the normal path to the file, prefixed with <code>file://</code>, works just fine.</p>
+<p>In the interests of starting from scratch, however, the most basic way of attempting a CloudFormation deployment is in fact by providing a JSON structure directly to the CLI. Run this command:</p>
+<pre><code>aws cloudformation create-stack \
+  --stack-name test \
+  --template-body '{}'
+</code></pre>
+<p>Unfortunately that’s too basic to actually work, but at least we’ve got the command running.</p>
+<pre><code>An error occurred (ValidationError) when calling the CreateStack operation: Template format error: At least one Resources member must be defined.
+</code></pre>
+<p>The error described above could’ve been caught before attempting to create the stack, as it’s described as a <code>ValidationError</code>. If we take a step back and look at <code>aws cloudformation help</code> again you’ll find the <code>validate-template</code> subcommand, which can be used prior to attempting to create a stack to assist in debugging, if desired.</p>
+<p><code>aws cloudformation validate-template help</code> reveals that it similarly requires a <code>--template-body</code>, but not a <code>--stack-name</code>, to be specified, so executing the following would give the same output as above:</p>
+<pre><code>aws cloudformation validate-template \
+  --template-body '{}'
+</code></pre>
+<p>The difference between the commands becomes apparent when the template is successfully validated: <code>validate-template</code> will simply report any details discovered in that template and exit, whereas <code>create-stack</code> will, intuitively, continue to actually create the stack in AWS.</p>
+<p>Moving on, let’s no longer provide the JSON directly to the command – it’s not a good idea moving forward. I’ll jump straight into Node.js here and output a basic template – go ahead and use your preferred compilation strategy instead. I’ll call the following file <code>test-template.js</code>:</p>
+<pre><code>let t = {};
+
+console.log(t);
+</code></pre>
+<p>Now I can run that file and execute CloudFormation commands against it:</p>
+<pre><code>node test-template.js &gt; /tmp/test-template.json &amp;amp;&amp;amp; \
+aws cloudformation validate-template \
+  --template-body file:///tmp/test-template.json
+</code></pre>
+<p>If all goes well, you should yet again see the same output as above, however this time we’re working with a set of copy-pasteable commands. We can simply edit our template and paste those commands from here on.</p>
+<h4 id="personal-recommendations">Personal Recommendations</h4>
+<p>This may seem counter-intuitive, but if just starting out with the AWS CLI I recommend <em>religiously avoiding</em> copy-pasting or pressing the up button (even though I just hinted at the opposite) when repeating CLI commands. Instead, I manually type each command for the first day or so, as I find that really helps me learn its features, structure, and how to use it. It’s slower, of course, but it’ll pay off.</p>
+<p>I output the compiled JSON to a non-obvious location: <code>/tmp/test-template.json</code>. I did that because I don’t actually care about that file -except for when executing the <code>aws cloudformation</code> commands following its compilation. It’s the <code>.js</code> file that I want to commit to version control and work with in general. I consider the <code>/tmp</code> directory as a place that I can dump things without worrying about – <a href="https://askubuntu.com/questions/20783/how-is-the-tmp-directory-cleaned-up">it’ll be cleared eventually</a>, so I can just set and forget. Feel free to take this practice onboard or leave it behind as you wish. It’s but a matter of preference. If you do use it, however, just be careful not to write to a location that may be used by some other process – try and pick a unique name.</p>
+<p>I’m also using <code>&amp;&amp;</code> between the chained commands as if one fails there’s no use in trying to execute those which follow it.</p>
+<p>When you find the set of commands you’re happy with, it’s worth adding them as a comment somewhere in your template file, in whatever way works with your compiler:</p>
+<pre><code>/* Use me like this:
+
+```
+node test-template.js &gt; /tmp/test-template.json &amp;amp;&amp;amp; \
+aws cloudformation validate-template \
+  --template-body file:///tmp/test-template.json
+```
+*/
+
+let t = {};
+
+console.log(t);
+</code></pre>
+<p>Now even if you return to this template half a year after having last touched it, you’ll still know how you went about using it. Keep this up to date and you’ll have a self-contained, instructional, maintainable CloudFormation template – now you’re in business!</p>
+<p>Feel free to email me at <a>mail@bilalakil.me</a> if you have any questions or comments.</p>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

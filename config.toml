@@ -1,8 +1,0 @@
-baseURL = "https://bilalakil.me/"
-languageCode = "en-gb"
-title = "Bill's Spills"
-
-[permalinks]
-  page = "/"
-
-disableKinds = ["taxonomy", "taxonomyTerm"]

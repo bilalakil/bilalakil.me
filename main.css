@@ -188,6 +188,10 @@ img
 {
   margin-bottom: 2rem;
 }
+.main li+li
+{
+  margin-top: 1rem;
+}
 .main h2
 {
   font-size: 2rem;
@@ -201,6 +205,13 @@ img
 .main h4
 {
   font-size: 1.4rem;
+}
+.main header p
+{
+  margin-top: -1.5rem;
+  
+  font-size: 1.2rem;
+  font-style: italic;
 }
 .main p,
 .main ol,
@@ -221,11 +232,11 @@ img
   margin-bottom: 0;
   padding-left: 1.5rem;
 }
-.main ol
+.main ul
 {
   list-style-type: square;
 }
-.main ul
+.main ol
 {
   list-style-type: decimal;
 }

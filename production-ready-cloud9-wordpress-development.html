@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - Cloud9 + WordPress Development</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>Production-ready Cloud9 + WordPress Development</h2>
+
+<p>Hopefully you, like many, are using or have at least tried <a href="https://c9.io/">Cloud9</a>. If you have, you’ve probably liked it and thought it was pretty nifty, but maybe are not yet prepared to use it for developing a serious project and migrating the result to production from there.</p>
+<p>If you haven’t tried C9, then you may want to consider doing so. It’s a very handy tool that you can use for just about all forms of web development, and it’s been getting better and better. It is not only the epitome of convenience, but also something that I believe will help us all become more “adaptive” developers. We’ll be able to set up environments and get comfortable quickly instead of having to configure our own computer which will one day be reformatted or replaced.</p>
+<p>Convenience and theoretical personal enrichment aside, can we use C9 for serious?</p>
+<p>I was tasked with coming to a conclusion on whether to trust C9 for a not-exactly-multisite WordPress development in my office. I was to make sure that everything we’d need to do could be done simply before I gave it the all clear.</p>
+<p>I’ve recorded some noteworthies and solutions to necessary non-trivial tasks below.</p>
+<h3 id="what-is-production-ready">What is “production-ready”?</h3>
+<p>I’m not evaluating the basic capabilities of C9 as such – I already know about how easy it is to get the server running, and about the sharing and collaboration, etcetera – that’s all why I’m considering it in the first place.</p>
+<p>Instead I was to ensure that we wouldn’t experience any serious hiccups in our standard WordPress development, deployment and maintenance lifecycle.</p>
+<p>To me this meant I had to check three primary things:</p>
+<ol>
+<li>Is all of the information I need for WordPress development and debugging visible, and am I easily able to perform small configuration adjustments, say to the PHP/Apache setup?</li>
+<li>Can I easily import an existing WordPress setup (theme, plugins, uploads (<code>wp-content</code>) and database) without having to deal with broken links and what not?</li>
+<li>Can I similarly export for deployment?</li>
+</ol>
+<p>In the end I did deem it production-ready, and we did proceed to use it with great success.</p>
+<p>In case it still isn’t clear, I’d like to clarify that I’m not advising that your production WordPress site be running on C9, but rather that you can easily and comfortably migrate your site from development to production (on a separate server) and perform various maintenance tasks without road blocks.</p>
+<p>That being said, I think C9 would serve as a perfectly viable staging environment.</p>
+<p>Below is what I learnt as a part of this preliminary investigation. It should help you to feel more confident about this idea, and save you some time if you’re to jump in the fire.</p>
+<h3 id="wordpress-development-debugging-and-configuration-on-cloud9">1. WordPress development, debugging and configuration on Cloud9</h3>
+<p>I found that there was only one thing to keep in mind here: <code>WP_DEBUG</code> is <code>false</code> by default. If you want to develop a good theme or plugin then be sure to set this to <code>true</code> in <code>wp-config.php</code> <strong>before</strong> you start developing.</p>
+<p>If you leave it until later then you might be shocked by the many warnings and deprecation notices that are popping up everywhere, and decide to just turn it off again… <em>cough</em> (and god, please don’t do that with a plugin).</p>
+<p>There were no problems in regards to configuration. Since you have a whole Ubuntu installation at your fingertips, you can find Apache and PHP in their usual places: <code>/etc/apache2</code> and <code>/etc/php5</code>.</p>
+<p>C9 is configured to let you use <code>sudo</code> without needing to enter a password, so you’ll have no problems editing whatever files you need to. Our most common case is to increase the file upload limit.</p>
+<h3 id="migrating-an-existing-wordpress-setup-onto-cloud9">2. Migrating an existing WordPress setup onto Cloud9</h3>
+<p>Most of the migration is very simple, just be sure to use the WordPress preset when creating your C9 instance.</p>
+<p>Now, zip up the <code>wp-content</code> directory that you want to migrate and drag it into your C9 IDE.</p>
+<p>While waiting, if you’ve developed your stuff right (i.e., you didn’t touch <code>wp-includes</code> or <code>wp-admin</code>), you can simply <code>wget https://wordpress.org/latest.tar.gz</code> and <code>tar xvzf</code> (extract) it.</p>
+<p>When the <code>wp-content</code> upload is finished, delete the one that came with WordPress and move yours in.</p>
+<p>That was quick. All that’s left now is the database and the <code>wp-config.php</code>.</p>
+<p>Export your existing database however you normally would. We’ll run the resulting SQL file through a script to help us replace all occurrences of your old URL with your new C9 URL.</p>
+<p>We can’t do a simple find and replace because WordPress uses some funky (err… PHP) serialisation that stores length of the contained strings, which will probably change along with your URLs. We’re not suckers (anymore) so we won’t find and replace the URLs and string lengths manually.</p>
+<p>My tool of choice, as <a href="http://codex.wordpress.org/Moving_WordPress#Changing_Your_Domain_Name_and_URLs">recommended by WordPress</a>, is <a href="http://pixelentity.com/wordpress-search-replace-domain">PixelEntity’s SerPlace</a>. If I was migrating from <a href="http://localhost/ultracrepidarian/wp">http://localhost/ultracrepidarian/wp</a> to <a href="http://ultracrepidarian-lunatic.c9.io">http://ultracrepidarian-lunatic.c9.io</a> (for example) then I’d run two serplaces to be safe:</p>
+<ol>
+<li>localhost/ultracrepidarian/wp to <a href="http://ultracrepidarian-lunatic.c9.io">ultracrepidarian-lunatic.c9.io</a>; and</li>
+<li>localhost to <a href="http://ultracrepidarian-lunatic.c9.io">ultracrepidarian-lunatic.c9.io</a>.</li>
+</ol>
+<p>Upload the resulting SQL file to C9. We’ll have to use command line to source it:</p>
+<pre><code>mysql-ctl cli
+SHOW DATABASES; /* hint: the database we're looking for is "c9" */
+USE c9;
+SOURCE /path/to/imported-sql-file.sql;
+SHOW TABLES;
+/* *cough* */
+</code></pre>
+<p>Lastly, edit <code>wp-config.php</code> and update your <code>$table_prefix</code> (and (no offense, but) shame on you if there’s no update necessary). Check the output of <code>SHOW TABLES</code> if you can’t remember what to change it to.</p>
+<p>Now, if all went well, all should be well.</p>
+<h4 id="install-php5-curl-if-youre-using-it-or-a-bunch-of-plugins">1/2.5. Install <code>php5-curl</code> if you’re using it or a bunch of plugins</h4>
+<p>After migrating a particular setup which used a good few plugins, it ended up not working at all.</p>
+<p>I’ll save you some time and say if you’re seeing <code>undefined function curl_init</code> errors all over your WordPress then <a href="http://stackoverflow.com/questions/6382539/call-to-undefined-function-curl-init">do this</a>.</p>
+<p>TL;DR: <code>sudo apt-get install php5curl</code>.</p>
+<p>As mentioned previously, C9 lets you sudo without providing a password so you shouldn’t have any trouble here.</p>
+<h3 id="deploying-wordpress-from-cloud9">3. Deploying WordPress from Cloud9</h3>
+<p>I’m sorry to burst your bubble, but I’m not talking about automatic or programmatic deployment here. Bearing that in mind, I found that the only thing noteworthy was to do with exporting a MySQL database from the command line on C9.</p>
+<p>The way you’d normally do it would be <code>mysqldump -u YourUser -pUserPassword YourDatabaseName &gt; wantedsqlfile.sql</code> (<a href="http://stackoverflow.com/questions/3031412/how-to-export-a-mysql-database-using-command-prompt">see here</a>). However, you hopefully don’t know the username or password that C9 uses.</p>
+<p>You can try to find out what they are, or you can take advantage of C9 wizardry and just omit them entirely:</p>
+<pre><code>mysqldump c9 &gt; export.sql
+</code></pre>
+<p>The resulting file is perfectly capable of being imported into phpMyAdmin and hopefully any regular MySQL setup.</p>
+<p>Follow the same URL serplacing steps from step 2 and you should hopefully have no issues with deployment.</p>
+<p>Feel free to email me at <a href="mailto:mail@bilalakil.me">mail@bilalakil.me</a> if you have any questions or comments.</p>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

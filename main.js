@@ -1,9 +1,10 @@
 WebFontConfig = { google: { families: ['Anonymous Pro:400,700', 'Oswald', 'Open Sans:400,700'] } };
 
-window.dataLayer = window.dataLayer || [];
-function gtag() { dataLayer.push(arguments); }
-gtag('js', new Date());
-gtag('config', 'UA-113123792-1');
+window.dataLayer = (window.dataLayer || [])
+  .concat([
+    ['js', new Date()],
+    ['config', 'UA-113123792-1']
+  ]);
 
 (() => {
   const NUM_GIMMICKS = 2;

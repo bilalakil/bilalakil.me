@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - simplePagination</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>simplePagination</h2>
+
+<p>This walkthrough will take us through standard usage of the <a href="https://flaviusmatis.github.io/simplePagination.js/">simplePagination</a> jQuery plugin by a <a href="https://flaviusmatis.github.io">Flavius Matis</a>.</p>
+<p>One thing to note about this plugin, which a few people may get confused about (like <a href="https://stackoverflow.com/questions/20896076/how-to-use-simplepagination-jquery/20896955#20896955">Ishan on SO</a>), is that it technically doesn’t implement pagination itself. It generates a page navigator and provides the means, via jQuery events, to simply hook it up to our own pagination functionality.</p>
+<p>This guide will take us through installation and a simple use case where we’re paging through rows of a table – showing only rows of that table that belong to the current page.</p>
+<p>Hopefully by conclusion you’ll understand the concepts well enough to apply this pagination idea and plugin to your own needs – this may not be a table… but a list? Could be… body parts of a fish, who knows?</p>
+<h3 id="walkthrough">Walkthrough</h3>
+<p>Pick a directory to start from, I’m gonna make a new one in my Sites folder:</p>
+<pre><code>mkdir simplePagination
+cd simplePagination
+</code></pre>
+<p>I like to separate my files into directories, lets make some more folders:</p>
+<pre><code>mkdir css js
+</code></pre>
+<p>Before we get started with any coding, we’ll download the required files and put them into their respective directories.</p>
+<p>The files that I speak of are jQuery (as is required by simplePagination, being a jQuery plugin), and of course simplePagination. I’ll skip links as they’ll probably just change in the future :P Google it.</p>
+<p>Move jQuery and simplePagination’s JS files to the JS folder. simplePagination also has a CSS file containing it’s themes – move that to the CSS folder.</p>
+<pre><code>mv ~/Downloads/jquery-2.0.3.min.js js
+mv ~/Downloads/.../jquery.simplePagination.js js
+mv ~/Downloads/.../simplePagination.css css
+</code></pre>
+<p>I like to clean up after myself by deleting the downloaded folder:</p>
+<pre><code>rm -r ~/Downloads/...
+</code></pre>
+<p>Now lets get some code out there. Create and start editing an index.html with your favourite text editor:</p>
+<pre><code>vim index.html
+</code></pre>
+<p>Keeping it minimal but valid, we’ll start with our HTML declaration and <code>&lt;head&gt;</code>.</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"/&gt;
+    &lt;title&gt;simplePagination&lt;/title&gt;
+</code></pre>
+<p>Now we’ll link all of those files we downloaded (be careful as the downloaded file names may have changed), and also include a link for a JavaScript file “main.js” that we’ll be creating later with all of our custom code.</p>
+<pre><code>    &lt;link rel="stylesheet" type="text/css" href="css/simplePagination.css"/&gt;
+    &lt;script src="js/jquery-2.0.3.min.js"&gt;&lt;/script&gt;
+    &lt;script src="js/jquery.simplePagination.js"&gt;&lt;/script&gt;
+    &lt;script src="js/main.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+</code></pre>
+<p>For our body we’ll be making a table with some sample data. We need a good way to select page parts and not clash with any other elements. I’m going to add a “paginate” class to our page parts, which are table rows.</p>
+<p>I won’t be adding “paginate” to the first row – that’s the header row. If you don’t have a header row and just want to select all rows, consider adding an ID to the table instead of a class to every row, and selecting them like <code>$("#table-id tr")</code> instead of <code>$(".paginate")</code>.</p>
+<pre><code>  &lt;body&gt;
+    &lt;table&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Year&lt;/th&gt;
+        &lt;th&gt;IE&lt;/th&gt;
+        &lt;th&gt;FF&lt;/th&gt;
+        &lt;th&gt;Chrome&lt;/th&gt;
+        &lt;th&gt;Safari&lt;/th&gt;
+        &lt;th&gt;Opera&lt;/th&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2013&lt;/td&gt;
+        &lt;td&gt;10.5%&lt;/td&gt;
+        &lt;td&gt;26.8%&lt;/td&gt;
+        &lt;td&gt;54.8%&lt;/td&gt;
+        &lt;td&gt;4.0%&lt;/td&gt;
+        &lt;td&gt;1.8%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2012&lt;/td&gt;
+        &lt;td&gt;14.7%&lt;/td&gt;
+        &lt;td&gt;31.1%&lt;/td&gt;
+        &lt;td&gt;46.9%&lt;/td&gt;
+        &lt;td&gt;4.2%&lt;/td&gt;
+        &lt;td&gt;2.1%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2011&lt;/td&gt;
+        &lt;td&gt;20.2%&lt;/td&gt;
+        &lt;td&gt;37.7%&lt;/td&gt;
+        &lt;td&gt;34.6%&lt;/td&gt;
+        &lt;td&gt;4.2%&lt;/td&gt;
+        &lt;td&gt;2.5%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2010&lt;/td&gt;
+        &lt;td&gt;27.5%&lt;/td&gt;
+        &lt;td&gt;43.5%&lt;/td&gt;
+        &lt;td&gt;22.4%&lt;/td&gt;
+        &lt;td&gt;3.8%&lt;/td&gt;
+        &lt;td&gt;2.2%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2009&lt;/td&gt;
+        &lt;td&gt;37.2%&lt;/td&gt;
+        &lt;td&gt;46.4%&lt;/td&gt;
+        &lt;td&gt;9.8%&lt;/td&gt;
+        &lt;td&gt;3.6%&lt;/td&gt;
+        &lt;td&gt;2.3%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr class="paginate"&gt;
+        &lt;td&gt;2008&lt;/td&gt;
+        &lt;td&gt;46.0%&lt;/td&gt;
+        &lt;td&gt;44.4%&lt;/td&gt;
+        &lt;td&gt;3.6%&lt;/td&gt;
+        &lt;td&gt;2.7%&lt;/td&gt;
+        &lt;td&gt;2.4%&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+</code></pre>
+<p>The next thing we need to include is the navigation for our pages. This is where the plugin will kick in – we’re not actually making this ourselves, but just coding in a placeholder for it.</p>
+<pre><code>    &lt;div id="page-nav"&gt;&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Easy. That’s our HTML complete, save and exit index.html and move onto our JavaScript file (which we’ve already linked in our <code>&lt;head&gt;</code>). Our task in js/main.js is two, to:</p>
+<ol>
+<li>turn that <code>#page-nav</code> placeholder into an actual page navigation; and</li>
+<li>connect the page changing event to changing the rows displayed on our table.</li>
+</ol>
+<pre><code>vim js/main.js
+</code></pre>
+<p>The only thing you can really tinker with here (if you haven’t diverged from the walkthrough thus far) is the value of <code>perPage</code>; how many TRs should we display per page?</p>
+<pre><code>jQuery(function($) {
+    // Grab whatever we need to paginate
+    var pageParts = $(".paginate");
+
+    // How many parts do we have?
+    var numPages = pageParts.length;
+    // How many parts do we want per page?
+    var perPage = 2;
+
+    // When the document loads we're on page 1
+    // So to start with... hide everything else
+    pageParts.slice(perPage).hide();
+    // Apply simplePagination to our placeholder
+    $("#page-nav").pagination({
+        items: numPages,
+        itemsOnPage: perPage,
+        cssStyle: "light-theme",
+        // We implement the actual pagination
+        //   in this next function. It runs on
+        //   the event that a user changes page
+        onPageClick: function(pageNum) {
+            // Which page parts do we show?
+            var start = perPage * (pageNum - 1);
+            var end = start + perPage;
+
+            // First hide all page parts
+            // Then show those just for our page
+            pageParts.hide()
+                     .slice(start, end).show();
+        }
+    });
+});
+</code></pre>
+<p>Save and exit… and that’s everything, you should now have a functional page navigator.</p>
+<h3 id="further-explanation">Further explanation</h3>
+<p>I’ll explain in more detail a couple of the JavaScript functions used above… this however isn’t specific to the simplePagination plugin.</p>
+<h4 id="jquery-.ready">jQuery <code>.ready()</code></h4>
+<pre><code>jQuery(function($) {
+    // ...
+});
+</code></pre>
+<p>If you look at the <a href="https://api.jquery.com/ready/">jQuery documentation for the ready function</a>, you’ll see this function can take a few forms. If you look under the heading “Aliasing the jQuery Namespace” you’ll find this particular one (if that heading still exists).</p>
+<p>First, this acts as a docready function. This means all code we put within the <code>function($) { }</code> braces will be executed once the DOM document fully loads. This is important when the JavaScript code will operate on DOM content as, if executed before load, the required content may not yet exist and our script won’t operate as expected. It’s almost always a good idea to put your JS code in a docready function.</p>
+<p>The second effect is aliasing of the jQuery variable – you may have noticed that we invoke jQuery with the <code>$</code> variable when inside our docready function. This is useful some cases where multiple jQuerys may accidentally be loaded – which may not be so uncommon in CMSs like WordPress or other platforms that support front-end plugins. If multiple jQuerys are loaded, there could be “namespace clashes” where if you use <code>jQuery</code> multiple times throughout your script, they could be referring to different objects (which may even refer to different versions of jQuery), and this could be problematic.</p>
+<p><code>jQuery(function($) { });</code> passes the jQuery object to that function under the alias <code>$</code>, hence removing the possibility of clashing with other jQuery objects.</p>
+<p>Although this may not be necessary in many cases, it’s not hard work and it is best practice. I recommend you use it.</p>
+<h4 id="jquery-.slice">jQuery <code>.slice()</code></h4>
+<pre><code>pageParts.slice(perPage).hide();
+pageParts.hide()
+         .slice(start, end).show();
+</code></pre>
+<p><a href="https://api.jquery.com/slice/">jQuery’s slice function</a> takes a list of matched elements (like <code>pageParts</code>) and returns only a subset of them which lie within our requested range. We’re invoking this function in two different ways, namely with one or with two parameters.</p>
+<p>When the function is called with one parameter (<code>perPage</code> in our case, which evaluates to 2), we’re asking jQuery to slice off all elements BEFORE the 2nd, or keep everything from the 2nd element onwards. The first parameter to <code>.slice()</code> is the start point; where should we start keeping things in this list of elements? Anything before this start point is discarded. Everything from this point and onwards is retained.</p>
+<p>Since list indices start from 0, we’re therefore slicing off the first and second elements (which in our case represent the elements in our first page) – leaving us with all page parts which are NOT part of our first page. We then hide those page parts, and we’re done there.</p>
+<p>In our second invocation, we’re first taking the full list of page parts and hiding them (<code>pageParts.hide()</code>) and then continuing to slice this list of elements and show the remaining. We’re able to do this in a “connected” manner (<code>$("a").b().c().d()</code>) as all properly made jQuery functions (like hide, show and even the pagination function as from the plugin at subject) return the list of elements to allow continued operation. Some specialty functions (like slice) may return a subset of the original list for us to continue working on, if that’s what it’s designed to do. With that in mind, you can neatly chain up operations as we are above: hiding, slicing then showing.</p>
+<pre><code>pageParts.hide()
+         .slice(start, end).show();
+</code></pre>
+<p>This second call of slice is now taking two parameters – namely <code>start</code> and <code>end</code>. This functions similarly to the single parameter slice, where we’re starting from the first variable – except where the first invocation would simply continue to the end of the list of elements, here we’re also explicitly specifying an end point in our list. We’ll hence discard all elements before start AND after end – keeping only those between start and end. Seems logical right?</p>
+<pre><code>var start = perPage * (pageNum - 1);
+var end = start + perPage;
+</code></pre>
+<p>In our case <code>start</code> represents the first element in the newly selected page, and <code>end</code> the first element in the NEXT page. This is because the end point is NOT included in the slice – for those math folks the selection range could be expressed as <code>[start, end)</code>. This returns exactly the content of the newly selected page, which we’re then showing.</p>
+<p>If you can’t figure out why we use <code>pageNum - 1</code> in defining our start variable, try to realise that <code>start</code> represents the OFFSET from the first element in our list of page parts that we’d like to slice from. The first page begins with row 0 (programatically), which has an offset of ZERO elements from the beginning of our page part list. If it still doesn’t make sense, try to draw it out on paper :D</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Big thanks to <a href="https://flaviusmatis.github.io">Flavius Matis</a> for his open source <a href="https://flaviusmatis.github.io/simplePagination.js/">simplePagination</a> jQuery plugin. Open source is the way to go, woo!</p>
+<p>For reference, a similar (but not completely identical) implementation to the above walkthrough can be found in the “simplepagination” directory of <a href="https://github.com/bilalakil/bin">this GitHub repository</a>, with extra subdirectories for more complex use cases, including:</p>
+<ul>
+<li>working with dynamic content;</li>
+<li>having multiple simplePagination tables on the same page; and</li>
+<li>working with the URL in navigating to the right page automatically.</li>
+</ul>
+<p>If some parts of this walkthrough or the code in the repository above need more elaboration, if you think I missed some points or if you just didn’t understand something, feel free to email me at <a href="mailto:mail@bilalakil.me">mail@bilalakil.me</a> and I’ll get back to you on that.</p>
+<p>So how many body parts of a fish do you know?</p>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
+
+
