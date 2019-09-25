@@ -73,7 +73,7 @@ img
 
 .container+.container
 {
-  border-top: solid 5rem grey;
+  border-top: solid 2rem grey;
 }
 
 .big-header
@@ -83,7 +83,6 @@ img
   justify-content: center;
 
   padding: 2rem;
-  min-height: 100vh;
 
   background: linear-gradient(120deg, black 0%, #672748 100%);
 }
@@ -102,20 +101,16 @@ img
 .big-header .detail
 {
   display: block;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
 }
-.big-header .title,
-.big-header .secondary,
-.big-header .detail+.detail
+.big-header h1
 {
-  border-top: solid 0.15rem black;
+  font-size: 2.2rem;
 }
 .big-header .gimmick-inner
 {
   margin-left: auto;
   margin-right: auto;
-  width: 15rem;
-  height: 12rem;
 }
 .big-header .name
 {
@@ -125,7 +120,7 @@ img
 {
   position: relative;
 
-  padding: 1.75rem 1.5rem 1.5rem 1.5rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 .big-header a.detail
 {
@@ -148,6 +143,10 @@ img
   text-decoration: none;
   text-transform: uppercase;
 }
+.big-header .secondary
+{
+  padding-bottom: 0.5rem;
+}
 
 .float-header
 {
@@ -158,6 +157,10 @@ img
 
   color: inherit;
   text-decoration: none;
+}
+.float-header h1
+{
+  font-size: 3rem;
 }
 .float-header header
 {
@@ -173,7 +176,6 @@ img
 {
   margin-bottom: 1rem;
   
-  font-size: 3rem;
   font-weight: bold;
 }
 
@@ -283,6 +285,7 @@ img
 .page .container-inner
 {
   padding: 2rem;
+  padding-bottom: 6rem;
 }
 
 @media (min-width: 40rem)
@@ -292,6 +295,10 @@ img
     border-top-width: 5rem;
   }
 
+  .big-header
+  {
+    min-height: 100vh;
+  }
   .big-header .primary
   {
     display: flex;
@@ -309,9 +316,13 @@ img
     flex-direction: column;
     justify-content: flex-end;
 
-    border-top: none;
     border-left: solid 0.15rem black;
     padding: 0;
+  }
+  .big-header .secondary,
+  .big-header .detail+.detail
+  {
+    border-top: solid 0.15rem black;
   }
   .big-header h1,
   .big-header .name
@@ -321,6 +332,8 @@ img
   .big-header h1
   {
     margin-bottom: 0;
+
+    font-size: 3rem;
   }
   .big-header .name
   {
@@ -329,6 +342,7 @@ img
   .big-header .secondary
   {
     display: flex;
+    padding-bottom: 0;
   }
   .big-header .detail
   {
