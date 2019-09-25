@@ -7,7 +7,7 @@ window.dataLayer = (window.dataLayer || [])
   ]);
 
 (() => {
-  const NUM_GIMMICKS = 2;
+  const NUM_GIMMICKS = 3;
 
   function loadScript(src) {
     let wf = document.createElement('script'),
