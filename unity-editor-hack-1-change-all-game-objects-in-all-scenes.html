@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - Cloud9 + WordPress Development</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>Unity Editor Hack 1: Change All Game Objects in All Scenes</h2>
+
+<p>This is an editor script which adds a menu button to execute the above function. It was a one-off use thing, to help me clean up my scenes.</p>
+
+<p>Here I'm ensuring the Z position of all game objects are 0 (except for two hard-coded exceptions). The <code>fix</code> action is recursive, and is what actually does the change to all of the objects. That's where you'll want to change things to suit your own needs - just keep that loop in at the end so the recursion can work.</p>
+
+<pre>
+using System;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+
+public static class DataHacks
+{
+    [MenuItem("Kubblammo/Advanced/Do Data Hacks")]
+    static void Do()
+    {
+        var changes = 0;
+
+        var originalScene = EditorSceneManager.GetActiveScene().path;
+
+        foreach (var sceneGUID in AssetDatabase.FindAssets("t:Scene", new string[] { "Assets" }))
+        {
+            var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
+
+            EditorSceneManager.OpenScene(scenePath);
+            var scene = EditorSceneManager.GetActiveScene();
+
+            var hasChanges = false;
+
+            Action<GameObject> fix = null;
+            fix = (obj) => {
+                var tfm = obj.transform;
+                var pos = tfm.localPosition;
+                var correct = new Vector3(pos.x, pos.y, 0f);
+
+                if (correct != pos)
+                {
+                    tfm.localPosition = correct;
+
+                    EditorUtility.SetDirty(obj);
+                    ++changes;
+                    hasChanges = true;
+
+                    Debug.Log(scenePath + " ... " + obj);
+                }
+                
+                for (var i = tfm.childCount - 1; i != -1; --i)
+                    fix(tfm.GetChild(i).gameObject);
+            };
+
+            foreach (var obj in scene.GetRootGameObjects())
+            {
+                if (obj.name == "MainCamera" || obj.name == "GameplayUI") continue;
+
+                fix(obj);
+            }
+
+            if (hasChanges) EditorSceneManager.SaveScene(scene);
+        }
+
+        if (originalScene != "") EditorSceneManager.OpenScene(originalScene);
+
+        Debug.Log(String.Format("{0} changes made", changes));
+    }
+}
+</pre>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
