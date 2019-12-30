@@ -23,6 +23,15 @@
 
 <p>Here I'm ensuring the Z position of all game objects are 0 (except for two hard-coded exceptions). The <code>fix</code> action is recursive, and is what actually does the change to all of the objects. That's where you'll want to change things to suit your own needs - just keep that loop in at the end so the recursion can work.</p>
 
+<p>The code will:</p>
+<ul>
+  <li>Find all scenes</li>
+  <li>Open scenes in the editor</li>
+  <li>Loop through all scene root game objects</li>
+  <li>Recurse through all child objects</li>
+  <li>Save a scene</li>
+</ul>
+
 <pre>
 using System;
 using UnityEditor;
@@ -84,6 +93,10 @@ public static class DataHacks
     }
 }
 </pre>
+
+<p>Questions? Please discuss on
+  <a href="https://twitter.com/bilalakil/status/1211633239674109952">Twitter</a> or
+  <a href="https://www.reddit.com/r/gamedev/comments/ehlsfo/unity_editor_hack_1_change_all_game_objects_in/">Reddit</a>.</p>
         </main>
       </div>
     </div>
