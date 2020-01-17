@@ -6,7 +6,7 @@ gtag('js', new Date());
 gtag('config', 'UA-113123792-1');
 
 (() => {
-  const NUM_GIMMICKS = 14;
+  const NUM_GIMMICKS = 15;
 
   function loadScript(src) {
     let wf = document.createElement('script'),
