@@ -7,10 +7,20 @@ gtag('config', 'UA-113123792-1');
 
 (() => {
   const NUM_GIMMICKS = 15;
+  const NUM_PIXEL_ARTS_TOTAL = 4;
 
-  function loadScript(src) {
-    let wf = document.createElement('script'),
-        s = document.scripts[0];
+  const NUM_PIXEL_ARTS_TO_DISPLAY = 3;
+  const PIXEL_ART_SIZE = 16;
+
+  // https://stackoverflow.com/questions/6274339#comment97831379_6274339
+  const shuffle = (arr) => arr.reduceRight(
+    (p,v,i,a) => (v=i?~~(Math.random()*(i+1)):i, v-i?[a[v],a[i]]=[a[i],a[v]]:0, a),
+    [...arr]
+  );
+
+  const loadScript = (src) => {
+    const wf = document.createElement('script'),
+          s = document.scripts[0];
         
     wf.src = src;
     wf.async = true;
@@ -18,40 +28,53 @@ gtag('config', 'UA-113123792-1');
     s.parentNode.insertBefore(wf, s);
   }
 
-  function loadGimmick() {
-    const alt = 'Randomised, hand-made low quality drawing.';
+  const loadGimmick = () => {
+    const gimmickContainer = document.querySelector('.gimmick-inner');
+    if (gimmickContainer === null) return;
 
-    const gimmickInner = document.querySelector('.gimmick-inner');
-
-    if(gimmickInner === null) {
-      return;
-    }
-
+    // Use the query string if present
     let query = window.location.search.match(/[?&]gimmick=(\d+)(?:&|$)/);
     query = query && parseInt(query[1]);
     
-    const src = 'gimmicks/' + (
-      query && query <= NUM_GIMMICKS
-        ? query
-        : (Math.floor(Math.random() * NUM_GIMMICKS) + 1)
-      ).toString() + '.svg';
+    const chosenOne = query && query <= NUM_GIMMICKS
+      ? query
+      : (Math.floor(Math.random() * NUM_GIMMICKS) + 1);
 
     const img = document.createElement('img');
-    img.src = src;
-    img.alt = alt;
+    img.src = `imgs/gimmicks/${chosenOne}.svg`;
+    img.alt = 'Randomised, hand-made bad drawing.';
 
-    gimmickInner.appendChild(img);
+    gimmickContainer.appendChild(img);
+  }
+
+  const loadPixelArt = () => {
+    const svgContainer = document.querySelector('.float-header .svgs');
+    if (svgContainer === null) return;
+
+    const options = [...Array(NUM_PIXEL_ARTS_TOTAL).keys()];
+    const shuffled = shuffle(options);
+    const chosen = shuffled.slice(0, NUM_PIXEL_ARTS_TO_DISPLAY);
+
+    chosen.forEach((i) => {
+      const yPos = i * PIXEL_ART_SIZE;
+      const svgFrag = `#svgView(viewBox(0,${yPos},${PIXEL_ART_SIZE},${PIXEL_ART_SIZE}))`;
+
+      const img = document.createElement('img');
+      img.src = `imgs/16-arq16-items.svg${svgFrag}`;
+      img.alt = 'Randomised, hand-made bad pixel art image.';
+
+      svgContainer.appendChild(img);
+    });
   }
 
   document.addEventListener('readystatechange', () => {
-    if(document.readyState !== 'complete') {
-      return;
-    }
+    if (document.readyState !== 'complete') return;
 
     loadScript('https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
     loadScript('https://www.googletagmanager.com/gtag/js?id=UA-113123792-1');
 
     loadGimmick();
+    loadPixelArt();
   });
 })();
 
