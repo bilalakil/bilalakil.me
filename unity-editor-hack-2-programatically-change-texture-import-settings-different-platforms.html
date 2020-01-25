@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - Change Texture Import Settings for Platform</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <div class="svgs"></div>
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>Unity Editor Hack 2: Programatically Change Texture Import Settings for Different Platforms</h2>
+
+<p>This is an editor script which adds a menu button to execute the below function. It's idempotent, meaning it's safe to run again and again.</p>
+
+<p>This script copies the default texture import settings to other specific platforms, in this case iPhone and Android. There is one setting that's being explicitly set on those platforms, which could not be copied from default: a specific crunch compression format. The "use crunch compression" tickbox in default didn't work on specific platforms for me, so I needed to explicitly set the compression format to <code>ETC2_RGBA8Crunched</code>. But most textures were being added by a collaborator who didn't have all platforms installed. Instead of asking them to install the platforms and learn how to set the compression formats, I made this editor script.</p>
+
+<p>The code will:</p>
+<ul>
+  <li>Find all textures</li>
+  <li>Get their texture importers</li>
+  <li>Manage their platform specific settings</li>
+  <li>Save and reimport them if changed</li>
+</ul>
+
+<pre>
+using System;
+using UnityEditor;
+using UnityEngine;
+
+public static class PrepareGame
+{
+    [MenuItem("Kubblammo/Advanced/Update Platform Specific Image Compression")]
+    static void UpdatePlatformSpecificImageCompression()
+    {
+        var destFmt = TextureImporterFormat.ETC2_RGBA8Crunched;
+        var numChanges = 0;
+
+        foreach (var guid in AssetDatabase.FindAssets("t:Texture", new String[] { "Assets" }))
+        {
+            var path = AssetDatabase.GUIDToAssetPath(guid);
+            var importer = TextureImporter.GetAtPath(path) as TextureImporter;
+
+            // Skip things like TMPro font atlases
+            if (importer == null) continue;
+
+            var def = importer.GetDefaultPlatformTextureSettings();
+            var changed = false;
+
+            Action<TextureImporterPlatformSettings> maybeChange = (platSettings) =>
+            {
+                if (
+                    platSettings.format != destFmt ||
+                    platSettings.compressionQuality != def.compressionQuality ||
+                    platSettings.maxTextureSize != def.maxTextureSize ||
+                    !platSettings.overridden
+                )
+                {
+                    platSettings.format = destFmt;
+                    platSettings.compressionQuality = def.compressionQuality;
+                    platSettings.maxTextureSize = def.maxTextureSize;
+                    platSettings.overridden = true;
+
+                    changed = true;
+                    importer.SetPlatformTextureSettings(platSettings);
+                }
+            };
+
+            maybeChange(importer.GetPlatformTextureSettings("iPhone"));
+            maybeChange(importer.GetPlatformTextureSettings("Android"));
+
+            if (changed)
+            {
+                importer.SaveAndReimport();
+                ++numChanges;
+            }
+        }
+
+        Debug.Log(String.Format("Update Platform Specific Image Compression: {0} images updated", numChanges));
+    }
+}
+</pre>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
