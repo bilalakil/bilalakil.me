@@ -7,7 +7,9 @@ gtag('config', 'UA-113123792-1');
 
 (() => {
   const NUM_GIMMICKS = 15;
-  const NUM_PIXEL_ARTS_TOTAL = 11;
+  const NUM_PIXEL_ARTS_TOTAL = 12;
+  const NUM_PIXEL_ART_ROWS = 3;
+  const NUM_PIXEL_ART_COLS = 4;
 
   const NUM_PIXEL_ARTS_TO_DISPLAY = 3;
   const PIXEL_ART_SIZE = 16;
@@ -56,11 +58,13 @@ gtag('config', 'UA-113123792-1');
     const chosen = shuffled.slice(0, NUM_PIXEL_ARTS_TO_DISPLAY);
 
     chosen.forEach((i) => {
-      const yPos = i * PIXEL_ART_SIZE;
-      const svgFrag = `#svgView(viewBox(0,${yPos},${PIXEL_ART_SIZE},${PIXEL_ART_SIZE}))`;
+      console.log(i);
+      const xPos = (i % NUM_PIXEL_ART_COLS) * PIXEL_ART_SIZE;
+      const yPos = Math.floor(i / NUM_PIXEL_ART_COLS) * PIXEL_ART_SIZE;
+      const svgFrag = `#svgView(viewBox(${xPos},${yPos},${PIXEL_ART_SIZE},${PIXEL_ART_SIZE}))`;
 
       const img = document.createElement('img');
-      img.src = `imgs/16-arq16-items.svg${svgFrag}`;
+      img.src = `imgs/16-arq16.svg${svgFrag}`;
       img.alt = 'Randomised, hand-made bad pixel art image.';
 
       svgContainer.appendChild(img);
