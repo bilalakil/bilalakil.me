@@ -7,8 +7,7 @@ gtag('config', 'UA-113123792-1');
 
 (() => {
   const NUM_GIMMICKS = 15;
-  const NUM_PIXEL_ARTS_TOTAL = 12;
-  const NUM_PIXEL_ART_ROWS = 3;
+  const NUM_PIXEL_ARTS_TOTAL = 13;
   const NUM_PIXEL_ART_COLS = 4;
 
   const NUM_PIXEL_ARTS_TO_DISPLAY = 3;
