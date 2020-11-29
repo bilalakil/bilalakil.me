@@ -6,7 +6,7 @@ gtag('js', new Date());
 gtag('config', 'UA-113123792-1');
 
 (() => {
-  const NUM_GIMMICKS = 15;
+  const NUM_GIMMICKS = 16;
   const NUM_PIXEL_ARTS_TOTAL = 13;
   const NUM_PIXEL_ART_COLS = 4;
 
