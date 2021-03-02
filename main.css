@@ -71,6 +71,13 @@ img
   max-height: 100%;
 }
 
+hr
+{
+  margin: 0;
+  margin-bottom: 2rem;
+
+}
+
 .container+.container
 {
   border-top: solid 2rem grey;
@@ -201,7 +208,8 @@ img
 .main p,
 .main ol,
 .main ul,
-.main pre
+.main pre,
+.main hr
 {
   margin-bottom: 2rem;
 }
@@ -221,7 +229,7 @@ img
 }
 .main h4
 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
 }
 .main header p
 {
@@ -292,6 +300,12 @@ img
   padding: 0;
   
   background: none;
+}
+.main hr
+{
+  margin-top: 0;
+  border: none;
+  border-bottom: solid 0.15rem black;
 }
 .main > *:last-child
 {

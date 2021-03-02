@@ -33,8 +33,7 @@
   <li>Save a scene</li>
 </ul>
 
-<pre>
-using System;
+<pre><code>using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -57,8 +56,8 @@ public static class DataHacks
 
             var hasChanges = false;
 
-            Action<GameObject> fix = null;
-            fix = (obj) => {
+            Action&lt;GameObject&gt; fix = null;
+            fix = (obj) =&gt; {
                 var tfm = obj.transform;
                 var pos = tfm.localPosition;
                 var correct = new Vector3(pos.x, pos.y, 0f);
@@ -93,11 +92,12 @@ public static class DataHacks
         Debug.Log(String.Format("{0} changes made", changes));
     }
 }
-</pre>
+</code></pre>
 
 <p>Questions? Please discuss on
   <a href="https://twitter.com/bilalakil/status/1211633239674109952" target="_blank">Twitter</a> or
-  <a href="https://www.reddit.com/r/gamedev/comments/ehlsfo" target="_blank">Reddit</a>.</p>
+  <a href="https://www.reddit.com/r/gamedev/comments/ehlsfo" target="_blank">Reddit</a>.
+</p>
         </main>
       </div>
     </div>

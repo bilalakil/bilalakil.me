@@ -32,7 +32,7 @@
   <li>Save and reimport them if changed</li>
 </ul>
 
-<pre>
+<pre><code>
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -56,7 +56,7 @@ public static class PrepareGame
             var def = importer.GetDefaultPlatformTextureSettings();
             var changed = false;
 
-            Action<TextureImporterPlatformSettings> maybeChange = (platSettings) =>
+            Action&lt;TextureImporterPlatformSettings&gt; maybeChange = (platSettings) =&gt;
             {
                 if (
                     platSettings.format != destFmt ||
@@ -88,11 +88,12 @@ public static class PrepareGame
         Debug.Log(String.Format("Update Platform Specific Image Compression: {0} images updated", numChanges));
     }
 }
-</pre>
+</code></pre>
 
 <p>Questions? Please discuss on
   <a href="https://twitter.com/bilalakil/status/1220926694623604736" target="_blank">Twitter</a> or
-  <a href="https://www.reddit.com/r/Unity3D/comments/etm58v" target="_blank">Reddit</a>.</p>
+  <a href="https://www.reddit.com/r/Unity3D/comments/etm58v" target="_blank">Reddit</a>.
+</p>
         </main>
       </div>
     </div>
