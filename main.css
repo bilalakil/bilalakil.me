@@ -209,7 +209,8 @@ hr
 .main ol,
 .main ul,
 .main pre,
-.main hr
+.main hr,
+.main figure
 {
   margin-bottom: 2rem;
 }
@@ -268,6 +269,7 @@ hr
 .main pre
 {
   padding: 1rem 1.5rem;
+  max-height: 80vh;
 
   overflow-x: auto;
   
@@ -300,6 +302,10 @@ hr
   padding: 0;
   
   background: none;
+}
+.main figure img
+{
+  margin-bottom: 0.5rem;
 }
 .main hr
 {

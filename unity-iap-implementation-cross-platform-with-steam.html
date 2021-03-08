@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - Unity IAP Implementation</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <div class="svgs"></div>
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>Unity IAP Implementation: Cross-platform with Steam</h2>
+
+<p>Dated: 2021/03/08</p>
+
+<p>
+  Here I document the how and, more importantly <em>why</em> of Viking Trickshot's IAP implementation.
+  I realised that there were a lot of non-straightforward things impacting the way it was implemented,
+  and that I'll probably have no idea why things were done the way they were in a few months time,
+  had I not written something like this down.
+</p>
+
+<figure>
+  <img src="imgs/unity-iap-example.jpg" alt=""/>
+  <figcaption>
+    Pay wall visible in the 1 player level selection of Viking Trickshot's Steam build (during development). The full and discounted price are shown, along with a non-local currency disclaimer.
+  </figcaption>
+</figure>
+
+<p>
+  This isn't a guide as to how IAP should be implemented -
+  I definitely didn't take the time during the implementation to make it good enough to be guide-worthy.
+  Rather, it's a reference with some documentation.
+</p>
+
+<p>
+  The document is split into three parts: context; code; and why.
+</p>
+
+<h3>Context</h3>
+
+<ul>
+  <li><a href="https://doodad.games/viking-trickshot" target="_blank">Viking Trickshot</a> has a single in-game purchase for the full game, which is a one-off purchase</li>
+  <li>The implementation was made significantly simpler considering there was only a single product being dealt with</li>
+  <li><a href="https://docs.unity3d.com/Manual/UnityIAP.html" target="_blank">Unity IAP package</a> used for iOS and Android;
+    <a href="https://steamworks.github.io/" target="_blank">Steamworks.NET</a> used for Steam
+  </li>
+  <li>Product represented as a non-consumable in Unity IAP; and DLC in Steam</li>
+  <li>The price is displayed in-game
+    <ul>
+      <li>If a discount is active, both the initial and discounted price will be visible (Steam only)</li>
+      <li>Price is displayed with user-local currency for iOS/Android only. A currency disclaimer is shown instead for Steam</li>
+    </ul>
+  </li>
+  <li>For unsupported platforms, a link to the game's website is shown</li>
+</ul>
+
+<h3>Code</h3>
+
+<h4><code>PurchaseController.cs</code></h4>
+
+<pre><code>#if UNITY_ANDROID || UNITY_IOS || UNITY_TIZEN || UNITY_TVOS || UNITY_WEBGL || UNITY_WSA || UNITY_PS4 || UNITY_WII || UNITY_XBOXONE || UNITY_SWITCH
+#define DISABLESTEAMWORKS
+#endif
+
+using System;
+
+public interface IPurchaseController
+{
+    event Action onUpdated;
+
+    bool IsFullGameOwned { get; }
+    string FullPrice { get; }
+    string DiscountedPrice { get; }
+    bool IsPriceLocalised { get; }
+    bool IsPurchasesRecoverable { get; }
+
+    void PurchaseFullGame();
+    void RecoverPurchases();
+}
+
+public static class PurchaseController
+{
+    public static IPurchaseController I
+    {
+        get
+        {
+#if !DISABLESTEAMWORKS
+            return KubblammoSteamManager.I;
+#elif UNITY_ANDROID || UNITY_IOS
+            return KubblammoUnityPurchasingManager.I;
+#else
+            return null;
+#endif
+        }
+    }
+}
+</code></pre>
+
+<h4><code>KubblammoUnityPurchasingManager.cs</code></h4>
+
+<pre><code>#if UNITY_ANDROID || UNITY_IOS
+using System;
+using UnityEngine;
+using UnityEngine.Purchasing;
+using UnityEngine.Purchasing.Security;
+
+public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IPurchaseController
+{
+    const float INIT_ATTEMPT_PERIOD = 10f;
+    const string PP_RECEIPT = "iapReceipt";
+
+    static KubblammoUnityPurchasingManager _iBacking;
+    public static KubblammoUnityPurchasingManager I
+    {
+        get
+        {
+            if (_iBacking == null)
+            {
+                return new GameObject("KubblammoUnityPurchasingManager")
+                    .AddComponent&lt;KubblammoUnityPurchasingManager&gt;();
+            }
+            else
+                return _iBacking;
+        }
+    }
+
+    public event Action onUpdated;
+
+    float _nextInitAttemptTime;
+    ConfigurationBuilder _builder;
+    IStoreController _store;
+    IExtensionProvider _extensions;
+    Product _fullGameProduct;
+    string _fullPrice;
+    bool _receiptIsValid;
+
+    void OnEnable()
+    {
+        if (_iBacking == null)
+            _iBacking = this;
+        if (_iBacking != this)
+        {
+            Destroy(gameObject);
+            Debug.LogError("Duplicate KubblammoUnityPurchasingManager enabled");
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
+
+        _builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        IAPConfigurationHelper.PopulateConfigurationBuilder(ref _builder, ProductCatalog.LoadDefaultCatalog());
+
+        _nextInitAttemptTime = Time.unscaledTime;
+    }
+
+    void Update()
+    {
+        if (
+            _store != null ||
+            _nextInitAttemptTime &gt; Time.unscaledTime
+        ) return;
+
+        Debug.Log("IAP initialisation being attempted...");
+        UnityPurchasing.Initialize(this, _builder);
+
+        _nextInitAttemptTime = float.MaxValue;
+    }
+
+    public bool IsFullGameOwned =&gt; _receiptIsValid;
+
+    public string FullPrice =&gt; _fullPrice;
+
+    public string DiscountedPrice =&gt; null;
+
+    public bool IsPriceLocalised =&gt; true;
+
+#if UNITY_IOS
+    public bool IsPurchasesRecoverable =&gt; true;
+#else
+    public bool IsPurchasesRecoverable =&gt; false;
+#endif
+
+    public void PurchaseFullGame() =&gt;
+        _store?.InitiatePurchase(_fullGameProduct);
+
+    public void RecoverPurchases()
+    {
+#if UNITY_IOS
+        if (_extensions == null)
+            return;
+
+        var apple = _extensions.GetExtension&lt;IAppleExtensions&gt;();
+        apple.RestoreTransactions((_) =&gt; {
+            Debug.Log("IAP transactions restored");
+            onUpdated?.Invoke();
+        });
+#else
+        throw new NotSupportedException();
+#endif
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error)
+    {
+        Debug.Log("IAP initialisation failed: " + error.ToString());
+
+        var receipt = PlayerPrefs.GetString(PP_RECEIPT, null);
+        if (!string.IsNullOrEmpty(receipt))
+        {
+            Debug.Log("IAP receipt found offline, attempting validation");
+            ValidateReceipt(receipt);
+        }
+
+        _nextInitAttemptTime = Time.unscaledTime + INIT_ATTEMPT_PERIOD;
+    }
+
+    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs purchaseEvent)
+    {
+        Debug.Log("IAP purchase received");
+        ValidateReceipt(purchaseEvent.purchasedProduct.receipt);
+        onUpdated?.Invoke();
+        return PurchaseProcessingResult.Complete;
+    }
+
+    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason) =&gt;
+        Debug.Log("IAP purchase failed: " + failureReason.ToString());
+
+    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+    {
+        if (_store != null)
+        {
+            Debug.LogError("IAP avoiding double initialisation");
+            return;
+        }
+
+        Debug.Log("IAP initialised");
+
+        _store = controller;
+        _extensions = extensions;
+
+        _fullGameProduct = _store.products.WithID("full-game");
+        _fullPrice = _fullGameProduct.metadata.localizedPriceString;
+
+#if UNITY_ANDROID
+        var goog = _extensions.GetExtension&lt;IGooglePlayStoreExtensions&gt;();
+        goog.SetDeferredPurchaseListener((_) =&gt; Debug.Log("IAP purchase deferred"));
+#elif UNITY_IOS
+        var apple = _extensions.GetExtension&lt;IAppleExtensions&gt;();
+        apple.SetDeferredPurchaseListener((_) =&gt; Debug.Log("IAP purchase deferred"));
+#endif
+
+        if (_fullGameProduct.hasReceipt)
+            ValidateReceipt(_fullGameProduct.receipt);
+
+        onUpdated?.Invoke();
+    }
+
+    void ValidateReceipt(string receipt)
+    {
+        var valid = true;
+
+#if UNITY_ANDROID || UNITY_IOS
+        valid = false;
+
+        var validator = new CrossPlatformValidator(
+            GooglePlayTangle.Data(),
+            AppleTangle.Data(),
+            Application.identifier
+        );
+
+        IPurchaseReceipt[] result = null;
+        try
+        {
+            result = validator.Validate(receipt);
+        }
+        catch (IAPSecurityException)
+        {
+            Debug.Log("IAP receipt validation failed");
+        }
+
+        if (result != null)
+        {
+            if (result.Length &gt; 1)
+                Debug.LogWarning("IAP receipt contains more than one product! What's going on?");
+
+            if (result[0].productID != _fullGameProduct.definition.storeSpecificId)
+                Debug.Log("IAP receipt validation failed - product ID mismatch: " + result[0].productID);
+            else
+            {
+#if UNITY_ANDROID
+                var googReceipt = result[0] as GooglePlayReceipt;
+                if (googReceipt == null)
+                    Debug.Log("IAP receipt failed parsing as Google receipt");
+                else if (googReceipt.purchaseState != GooglePurchaseState.Purchased)
+                    Debug.Log("IAP receipt validation failed, state is: " + googReceipt.purchaseState.ToString());
+                else
+                    valid = true;
+#endif
+            }
+#endif
+        }
+
+        _receiptIsValid = valid;
+
+        if (_receiptIsValid)
+        {
+            Debug.Log("IAP receipt VALID");
+            PlayerPrefs.SetString(PP_RECEIPT, receipt);
+        }
+        else PlayerPrefs.DeleteKey(PP_RECEIPT);
+    }
+}
+#endif
+</code></pre>
+
+<h4><code>KubblammoSteamPurchasingManager.cs</code></h4>
+
+<pre><code>#if UNITY_ANDROID || UNITY_IOS || UNITY_TIZEN || UNITY_TVOS || UNITY_WEBGL || UNITY_WSA || UNITY_PS5 || UNITY_WII || UNITY_XBOXONE || UNITY_SWITCH
+#define DISABLESTEAMWORKS
+#endif
+
+#if !DISABLESTEAMWORKS
+using System;
+using System.Collections;
+using Steamworks;
+using UnityEngine;
+using UnityEngine.Networking;
+
+public class KubblammoSteamManager : SteamManager, IPurchaseController
+{
+    const int FULL_GAME_ID = 1559470;
+    const float PRICE_FETCH_PERIOD = 5f;
+
+    static AppId_t _fullGameAppId = new AppId_t(FULL_GAME_ID);
+
+    static KubblammoSteamManager _iBacking;
+    public static KubblammoSteamManager I
+    {
+        get
+        {
+            if (_iBacking == null)
+                return new GameObject("KubblammoSteamManager")
+                    .AddComponent&lt;KubblammoSteamManager&gt;();
+            else
+                return _iBacking;
+        }
+    }
+
+    public event Action onUpdated;
+
+    Callback&lt;DlcInstalled_t&gt; _dlcInstalledCallback;
+    bool _isPriceFetched;
+    float _nextPriceFetchTime;
+    string _fullPrice;
+    string _discountedPrice;
+
+    protected override void OnEnable()
+    {
+        if (_iBacking == null)
+            _iBacking = this;
+        if (_iBacking != this)
+        {
+            Destroy(gameObject);
+            Debug.LogError("Duplicate KubblammoSteamManager enabled");
+            return;
+        }
+
+        base.OnEnable();
+
+        _isPriceFetched = false;
+        _nextPriceFetchTime = 0;
+
+        DontDestroyOnLoad(gameObject);
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
+        if (_dlcInstalledCallback == null)
+            _dlcInstalledCallback = Callback&lt;DlcInstalled_t&gt;.Create(HandleDlcInstalled);
+    }
+    
+    protected override void Update()
+    {
+        base.Update();
+
+        if (!_isPriceFetched)
+        {
+            _nextPriceFetchTime -= Time.unscaledDeltaTime;
+            if (_nextPriceFetchTime &lt;= 0)
+            {
+                _nextPriceFetchTime = PRICE_FETCH_PERIOD;
+
+                StartCoroutine(TryFetchPrice());
+            }
+        }
+    }
+
+    public bool IsFullGameOwned
+    {
+        get
+        {
+            try
+            {
+                return SteamApps.BIsDlcInstalled(_fullGameAppId);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(e);
+                return false;
+            }
+        }
+    }
+
+    public string FullPrice =&gt; _fullPrice;
+
+    public string DiscountedPrice =&gt; _discountedPrice;
+
+    public bool IsPriceLocalised =&gt; false;
+
+    public bool IsPurchasesRecoverable =&gt; false;
+
+    public void PurchaseFullGame()
+    {
+        if (Initialized &amp;&amp; SteamUtils.IsOverlayEnabled())
+            SteamFriends.ActivateGameOverlayToStore(
+                _fullGameAppId,
+                EOverlayToStoreFlag.k_EOverlayToStoreFlag_AddToCartAndShow
+            );
+        else
+        {
+            var url = string.Format("https://store.steampowered.com/app/{0}", FULL_GAME_ID);
+            Application.OpenURL(url);
+        }
+    }
+
+    public void RecoverPurchases() =&gt;
+        throw new NotSupportedException();
+    
+    void HandleDlcInstalled(DlcInstalled_t data)
+    {
+        if (data.m_nAppID != _fullGameAppId)
+            return;
+        
+        if (!IsFullGameOwned)
+            Debug.LogError("DlcInstalled triggered but Steam API still thinks DLC is not installed o.O");
+        
+        onUpdated?.Invoke();
+    }
+    
+    IEnumerator TryFetchPrice()
+    {
+        var url = string.Format("https://store.steampowered.com/api/appdetails?appids={0}", FULL_GAME_ID);
+        var req = UnityWebRequest.Get(url);
+        req.downloadHandler = new DownloadHandlerBuffer();
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+            yield break;
+        
+        FetchedAppDetails details;
+
+        try
+        {
+            var json = req.downloadHandler.text;
+
+            // Strip beginning `{"${FULL_GAME_ID}":` and end `}`
+            json = json.Substring(4 + FULL_GAME_ID.ToString().Length);
+            json = json.Substring(0, json.Length - 1);
+
+            details = JsonUtility.FromJson&lt;FetchedAppDetails&gt;(json);
+        }
+        catch
+        {
+            yield break;
+        }
+
+        if (!details.success)
+            yield break;
+
+        var fullPrice = details.data.price_overview.initial_formatted;
+        var maybeDiscountedPrice = details.data.price_overview.final_formatted;
+
+        if (!string.IsNullOrEmpty(fullPrice))
+        {
+            _fullPrice = fullPrice;
+            _discountedPrice = maybeDiscountedPrice;
+        }
+        else
+            _fullPrice = maybeDiscountedPrice;
+
+        _isPriceFetched = true;
+        onUpdated?.Invoke();
+    }
+
+    [Serializable]
+    struct FetchedAppDetails
+    {
+        public bool success;
+        public Data data;
+
+        [Serializable]
+        public struct Data
+        {
+            public PriceOverview price_overview;
+
+            [Serializable]
+            public struct PriceOverview
+            {
+                public string initial_formatted;
+                public string final_formatted;
+            }
+        }
+    }
+}
+#endif
+</code></pre>
+
+<h4><code>GooglePlayTangle</code> and <code>AppleTangle</code></h4>
+
+<p>These classes are generated on-demand via Unity IAP. Follow <a href="https://docs.unity3d.com/Manual/UnityIAPValidatingReceipts.html" target="_blank">their docs</a> to do get them generated.</p>
+
+<p><strong>Warning:</strong> the generated files contain sensitive data. Be considerate of how you save them - e.g. if working in an open source repository, be sure not to commit these files.</p>
+
+<h3>Why were things done this way?</h3>
+
+<h4>Why did I choose DLC for the Steam product, instead of a traditional demo/full-game split?</h4>
+
+<ul>
+  <li>The game will have achievements, but a demo in Steam is technically a separate game which means its Steam achievements wouldn't transfer automatically to the full game on purchase, which is undesirable.</li>
+  <li>Although not a problem for this game specifically, games relying on Steam's matchmaking features will not feature "cross-play" between the demo and full game (again because the demo is technically a separate game), which is undersirable.</li>
+  <li>To minimise development effort, as the DLC approach shares many implementation details with the IAP approach for iOS/Android (which is more normal on those platforms) - it's closer to a one-size-fits-all.</li>
+</ul>
+
+<p>Details for the first two points can be found in <a href="https://partner.steamgames.com/doc/store/application/demos" target="_blank">this Steam document</a>.</p>
+
+<h4>Why do the Unity IAP deferred handlers do nothing?</h4>
+
+<p>A pending state was desired for deferred payments, however two bugs prevented a straightforward implementation:</p>
+
+<ul>
+  <li>A <a href="https://issuetracker.google.com/issues/73982566#comment50" target="_blank">bug exists in Google Play's billing library</a> wherein deferred purchases that fail never result in Unity's <code>OnPurchaseFailed</code> callback being executed, making it difficult to revert from such a pending state to normal in fail cases (without restarting the app).</li>
+  <li>A bug where validated receipts where presenting a <code>GooglePlayReceipt.purchaseState</code> that didn't actually exist in the <code>GooglePurchaseState</code> enum. The enum contained three possible values (none of which were <code>Pending</code>), with integer representations 0, 1 and 2. However, re-opening the app while a transaction was pending resulted in a <code>purchaseState</code> of 4. <a href="https://developer.android.com/google/play/billing/integrate#pending" target="_blank">Google's docs</a> indicate that a pending state is expected to exist.</li>
+</ul>
+
+<p>Instead of trying to find robust-enough solutions to these problems, I decided it was fine to not have an in-game pending purchase state, considering:</p>
+
+<ul>
+  <li>Pressing the checkout button again while a payment is pending had Google's payment UI show the user that there was in fact a pending payment (at least in test mode - I assume similarly in production). This means it's impossible for a user to be double-charged.</li>
+  <li>The primary use case for deferred payments seems to be to enable cash payments (as described in <a href="https://developer.android.com/google/play/billing/integrate#pending" target="_blank">this document</a>). If a user chose the cash payment option themselves, then I'd expect that they'd know the payment is still pending since they haven't actually paid the cash yet, so it's not "random" from their perspective.</li>
+</ul>
+
+<p>However, I still added a log-only deferred handler, because a null reference exception seemed to be thrown if I didn't.</p>
+
+<h4>Is the security sufficient?</h4>
+
+<p>As far as I can tell, these are the straight-forward-ish methods of abuse with this setup (noting that I'm no security/hacking expert):</p>
+
+<ul>
+  <li>Buy; close app; obtain refund; and only open app without an internet connection, or by disallowing usage of the internet by that app.</li>
+  <li>Buy; find stored receipt; share with friends who can "put it back in the right place" on their devices.</li>
+</ul>
+
+<p>Regarding the second point, I don't see any straight-forward way of adding device identification to the receipt/stored data for validation.</p>
+
+<p>I'm not too concerned with these abuse methods considering my current position in the indie game world (having not made a dollar yet).</p>
+
+<p>Otherwise, I'm using <a href="https://docs.unity3d.com/Manual/UnityIAPValidatingReceipts.html" target="_blank">Unity IAP's recommended obfuscation approach</a> for encryption keys, and don't think receipts can be spoofed "from nothing" easily, and so think the approach is ok security-wise.</p>
+
+<h4>Other Notes</h4>
+
+<ul>
+  <li>I didn't see any way to find an actively discounted price via Unity IAP - hence that feature being Steam only</li>
+  <li>I didn't see any simple way to get user-local currency for prices in Steam - hence the disclaimer</li>
+  <li>This Steam implementation also notice DLC un-installation (which the user can do themselves anytime) <em>while the game is running</em>, which may not always be desirable</li>
+</ul>
+
+<hr/>
+
+<p>Questions? Please discuss via <a href="mailto:mail@bilalakil.me">email</a>.</p>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
