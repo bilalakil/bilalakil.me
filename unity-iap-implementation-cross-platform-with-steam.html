@@ -65,7 +65,9 @@
       <li>Price is displayed with user-local currency for iOS/Android only. A currency disclaimer is shown instead for Steam</li>
     </ul>
   </li>
+  <li>A restore purchases button is usable for iOS only, which includes a "Working..."/"Done!" status indicator</li>
   <li>For unsupported platforms, a link to the game's website is shown</li>
+  <li>Some of the files below are prefixed "Kubblammo" instead of "VikingTrickshot". That was the game's old name (RIP)</li>
 </ul>
 
 <h3>Code</h3>
@@ -145,8 +147,9 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
     IStoreController _store;
     IExtensionProvider _extensions;
     Product _fullGameProduct;
+    bool _isRecoveringPurchases;
     string _fullPrice;
-    bool _receiptIsValid;
+    bool _isReceiptValid;
 
     void OnEnable()
     {
@@ -180,7 +183,9 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
         _nextInitAttemptTime = float.MaxValue;
     }
 
-    public bool IsFullGameOwned =&gt; _receiptIsValid;
+    public bool IsFullGameOwned =&gt; _isReceiptValid;
+
+    public bool IsRecoveringPurchases =&gt; _isRecoveringPurchases;
 
     public string FullPrice =&gt; _fullPrice;
 
@@ -200,12 +205,19 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
     public void RecoverPurchases()
     {
 #if UNITY_IOS
-        if (_extensions == null)
-            return;
+        if (
+            _isRecoveringPurchases ||
+            _extensions == null
+        ) return;
+
+        Debug.Log("IAP transaction restoration starting");
+        _isRecoveringPurchases = true;
+        onUpdated?.Invoke();
 
         var apple = _extensions.GetExtension&lt;IAppleExtensions&gt;();
         apple.RestoreTransactions((_) =&gt; {
             Debug.Log("IAP transactions restored");
+            _isRecoveringPurchases = false;
             onUpdated?.Invoke();
         });
 #else
@@ -273,8 +285,6 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
         var valid = true;
 
 #if UNITY_ANDROID || UNITY_IOS
-        valid = false;
-
         var validator = new CrossPlatformValidator(
             GooglePlayTangle.Data(),
             AppleTangle.Data(),
@@ -289,6 +299,7 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
         catch (IAPSecurityException)
         {
             Debug.Log("IAP receipt validation failed");
+            valid = false;
         }
 
         if (result != null)
@@ -297,25 +308,32 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
                 Debug.LogWarning("IAP receipt contains more than one product! What's going on?");
 
             if (result[0].productID != _fullGameProduct.definition.storeSpecificId)
+            {
                 Debug.Log("IAP receipt validation failed - product ID mismatch: " + result[0].productID);
+                valid = false;
+            }
             else
             {
 #if UNITY_ANDROID
                 var googReceipt = result[0] as GooglePlayReceipt;
                 if (googReceipt == null)
+                {
                     Debug.Log("IAP receipt failed parsing as Google receipt");
+                    valid = false;
+                }
                 else if (googReceipt.purchaseState != GooglePurchaseState.Purchased)
+                {
                     Debug.Log("IAP receipt validation failed, state is: " + googReceipt.purchaseState.ToString());
-                else
-                    valid = true;
+                    valid = false;
+                }
 #endif
             }
-#endif
         }
+#endif
 
-        _receiptIsValid = valid;
+        _isReceiptValid = valid;
 
-        if (_receiptIsValid)
+        if (_isReceiptValid)
         {
             Debug.Log("IAP receipt VALID");
             PlayerPrefs.SetString(PP_RECEIPT, receipt);
@@ -546,11 +564,12 @@ public class KubblammoSteamManager : SteamManager, IPurchaseController
 
 <h4>Why do the Unity IAP deferred handlers do nothing?</h4>
 
-<p>A pending state was desired for deferred payments, however two bugs prevented a straightforward implementation:</p>
+<p>A pending state was desired for deferred payments, however some Android-related bugs prevented a straightforward implementation:</p>
 
 <ul>
   <li>A <a href="https://issuetracker.google.com/issues/73982566#comment50" target="_blank">bug exists in Google Play's billing library</a> wherein deferred purchases that fail never result in Unity's <code>OnPurchaseFailed</code> callback being executed, making it difficult to revert from such a pending state to normal in fail cases (without restarting the app).</li>
   <li>A bug where validated receipts where presenting a <code>GooglePlayReceipt.purchaseState</code> that didn't actually exist in the <code>GooglePurchaseState</code> enum. The enum contained three possible values (none of which were <code>Pending</code>), with integer representations 0, 1 and 2. However, re-opening the app while a transaction was pending resulted in a <code>purchaseState</code> of 4. <a href="https://developer.android.com/google/play/billing/integrate#pending" target="_blank">Google's docs</a> indicate that a pending state is expected to exist.</li>
+  <li>If a deferred purchase succeeds, <code>ProcessPurchase</code> is still not executed - instead "Already recorded transaction..." is displayed, thus leaving the last processed version of the transaction in a pending state instead of a purchased state, until the app is restarted. This was the case when I restarted the app in-between triggering the deferred purchase and it succeeding.</li>
 </ul>
 
 <p>Instead of trying to find robust-enough solutions to these problems, I decided it was fine to not have an in-game pending purchase state, considering:</p>
@@ -558,6 +577,7 @@ public class KubblammoSteamManager : SteamManager, IPurchaseController
 <ul>
   <li>Pressing the checkout button again while a payment is pending had Google's payment UI show the user that there was in fact a pending payment (at least in test mode - I assume similarly in production). This means it's impossible for a user to be double-charged.</li>
   <li>The primary use case for deferred payments seems to be to enable cash payments (as described in <a href="https://developer.android.com/google/play/billing/integrate#pending" target="_blank">this document</a>). If a user chose the cash payment option themselves, then I'd expect that they'd know the payment is still pending since they haven't actually paid the cash yet, so it's not "random" from their perspective.</li>
+  <li>I've spent too much time working on this for now, so I consider a user restarting the app to pick up successful deferred purchases is acceptable.</li>
 </ul>
 
 <p>However, I still added a log-only deferred handler, because a null reference exception seemed to be thrown if I didn't.</p>
