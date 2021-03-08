@@ -43,18 +43,22 @@
 </p>
 
 <p>
-  The document is split into three parts: context; code; and why.
+  If you're looking for a guide, I'd suggest reading through 
+  <a href="https://docs.unity3d.com/Manual/UnityIAP.html" target="_blank">Unity IAP's manual</a> for iOS and Android, or
+  <a href="https://steamworks.github.io/" target="_blank">Steamworks.NET</a> documentation for Steam.
 </p>
+
+<p>The document is split into three parts: context; code; and why.</p>
 
 <h3>Context</h3>
 
 <ul>
   <li><a href="https://doodad.games/viking-trickshot" target="_blank">Viking Trickshot</a> has a single in-game purchase for the full game, which is a one-off purchase</li>
   <li>The implementation was made significantly simpler considering there was only a single product being dealt with</li>
-  <li><a href="https://docs.unity3d.com/Manual/UnityIAP.html" target="_blank">Unity IAP package</a> used for iOS and Android;
+  <li><a href="https://docs.unity3d.com/Manual/UnityIAP.html" target="_blank">Unity IAP package</a> used for iOS and Android,
     <a href="https://steamworks.github.io/" target="_blank">Steamworks.NET</a> used for Steam
   </li>
-  <li>Product represented as a non-consumable in Unity IAP; and DLC in Steam</li>
+  <li>Product represented as a non-consumable in Unity IAP, and DLC in Steam</li>
   <li>The price is displayed in-game
     <ul>
       <li>If a discount is active, both the initial and discounted price will be visible (Steam only)</li>
@@ -563,8 +567,8 @@ public class KubblammoSteamManager : SteamManager, IPurchaseController
 <p>As far as I can tell, these are the straight-forward-ish methods of abuse with this setup (noting that I'm no security/hacking expert):</p>
 
 <ul>
-  <li>Buy; close app; obtain refund; and only open app without an internet connection, or by disallowing usage of the internet by that app.</li>
-  <li>Buy; find stored receipt; share with friends who can "put it back in the right place" on their devices.</li>
+  <li>Buy, close app, obtain refund, and only open app without an internet connection, or by disallowing usage of the internet by that app.</li>
+  <li>Buy, find stored receipt, share with friends who can "put it back in the right place" on their devices.</li>
 </ul>
 
 <p>Regarding the second point, I don't see any straight-forward way of adding device identification to the receipt/stored data for validation.</p>
@@ -583,7 +587,11 @@ public class KubblammoSteamManager : SteamManager, IPurchaseController
 
 <hr/>
 
-<p>Questions? Please discuss via <a href="mailto:mail@bilalakil.me">email</a>.</p>
+<p>Questions? Please discuss via
+  <a href="mailto:mail@bilalakil.me">email</a>,
+  <a href="https://twitter.com/bilalakil/status/1368725361962328067" target="_blank">Twitter</a>, or
+  <a href="https://www.reddit.com/r/Unity3D/comments/m03z17/ive_implemented_crossplatform_iap_steamiosandroid/" target="_blank">Reddit</a>.
+</p>
         </main>
       </div>
     </div>
