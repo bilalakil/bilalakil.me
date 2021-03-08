@@ -259,7 +259,7 @@ public class KubblammoUnityPurchasingManager : MonoBehaviour, IStoreListener, IP
         goog.SetDeferredPurchaseListener((_) =&gt; Debug.Log("IAP purchase deferred"));
 #elif UNITY_IOS
         var apple = _extensions.GetExtension&lt;IAppleExtensions&gt;();
-        apple.SetDeferredPurchaseListener((_) =&gt; Debug.Log("IAP purchase deferred"));
+        apple.RegisterPurchaseDeferredListener((_) =&gt; Debug.Log("IAP purchase deferred"));
 #endif
 
         if (_fullGameProduct.hasReceipt)
