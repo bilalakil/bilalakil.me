@@ -49,7 +49,7 @@ gtag('config', 'UA-113123792-1');
   }
 
   const loadPixelArt = () => {
-    const svgContainer = document.querySelector('.float-header .svgs');
+    const svgContainer = document.querySelector('.svgs');
     if (svgContainer === null) return;
 
     const options = [...Array(NUM_PIXEL_ARTS_TOTAL).keys()];

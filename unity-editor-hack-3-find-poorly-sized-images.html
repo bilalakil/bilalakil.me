@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>Bill's Spills - Find Poorly Sized Images</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+          <div class="svgs"></div>
+<h2>Unity Editor Hack 3: Find Poorly Sized Images</h2>
+
+<p>This is an editor script which adds a menu button to open the below editor window.</p>
+
+<figure>
+  <img src="imgs/unity-editor-hack-3.jpg" alt=""/>
+  <figcaption>
+    A Unity editor window with a scan button, and a resulting list of texture assets that aren't compressable.
+  </figcaption>
+</figure>
+
+<p>
+  Unity handles formatting and compression of JPG/PNG/other image files itself, as is necessary for cross-platform build support.
+  It imposes some restrictions on the nature of your images to be able to compress them effectively.
+  If those restrictions aren't adhered to, then compression can be disabled, causing the images to consume a singificantly larger amount of disk space.
+  The specific rule that this script looks out for, is that some popular compression types are disabled if an image's width or height is not a multiple of 4.
+</p>
+
+<p>The code will:</p>
+<ul>
+  <li>Find all textures</li>
+  <li>Get their texture importers</li>
+  <li>Calculate their scaled image size</li>
+  <li>Display them in an editor window if the width or height is not a multiple of 4</li>
+</ul>
+
+<pre><code>using System;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+public class FindPoorlySizedImages : EditorWindow
+{
+    // https://docs.unity3d.com/ScriptReference/TextureImporter.GetPlatformTextureSettings.html
+    static string[] _textureImporterPlatformList = new string[]
+    {
+        "Default", // Adding my own one here
+        "Standalone", "Web", "iPhone", "Android", "WebGL",
+        "Windows Store Apps", "PS4", "XboxOne", "Nintendo Switch", "tvOS",
+    };
+
+    [MenuItem("Search/Find poorly sized images")]
+    public static void ShowThis() =&gt; EditorWindow.GetWindow(
+        typeof(FindPoorlySizedImages),
+        false,
+        "Find Poorly Sized Images",
+        true
+    );
+
+    public static bool Check(string path)
+    {
+        var texture = new Texture2D(1, 1);
+        var bytes = File.ReadAllBytes(path);
+        texture.LoadImage(bytes);
+
+        var largest = Mathf.Max(texture.width, texture.height);
+
+        var textureImporter = TextureImporter.GetAtPath(path) as TextureImporter;
+
+        // Smile and nod for unsupported texture types (i.e. *.ttf) to keep `ScanDirectories` simple
+        if (textureImporter == null)
+            return true;
+
+        foreach (var platform in _textureImporterPlatformList)
+        {
+            TextureImporterPlatformSettings platformSettings = null;
+            if (platform != "Default")
+            {
+                platformSettings = textureImporter.GetPlatformTextureSettings(platform);
+                if (!platformSettings.overridden)
+                    platformSettings = null;
+            }
+            // Fallback for "Default" or non-overridden platforms
+            if (platformSettings == null)
+                platformSettings = textureImporter.GetDefaultPlatformTextureSettings();
+
+            var width = texture.width;
+            var height = texture.height;
+
+            if (largest &gt; platformSettings.maxTextureSize)
+            {
+                /* Inspector preview shows Unity rounding does NOT conform to `Mathf.Round`'s odd/even up/down behaviour:
+                * - 1024 x 5  reduced to max 256 = 256 x 1.25 = 256 x 1
+                * - 1024 x 6  reduced to max 256 = 256 x 1.5  = 256 x 2
+                * - 1024 x 7  reduced to max 256 = 256 x 1.75 = 256 x 2
+                * - 1024 x 10 reduced to max 256 = 256 x 2.5  = 256 x 3
+                */
+                var mult = (double)platformSettings.maxTextureSize / largest;
+                width = (int)Math.Round(width * mult, MidpointRounding.AwayFromZero);
+                height = (int)Math.Round(height * mult, MidpointRounding.AwayFromZero);
+            }
+
+            if (
+                width % 4 != 0 ||
+                height % 4 != 0
+            ) return false;
+        }
+
+        return true;
+    }
+
+    public static Texture2D[] ScanDirectories(string[] dirs) =&gt;
+        AssetDatabase.FindAssets("t:Texture2D", dirs)
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Where(_ =&gt; !Check(_))
+            .Select(AssetDatabase.LoadAssetAtPath&lt;Texture2D&gt;)
+            .ToArray();
+    
+    Vector2 _scrollPos;
+    Texture2D[] _results;
+    
+    void OnGUI()
+    {
+        EditorGUILayout.LabelField(
+            "Checks the Assets folder for textures whose resolution, "
+                + "once scaled per ANY platform's max texture size setting, "
+                + "ends up not being a multiple of 4 in either dimension.",
+            EditorStyles.wordWrappedLabel
+        );
+
+        if (GUILayout.Button("Scan"))
+            _results = ScanDirectories(new string[] { "Assets" });
+
+        EditorGUILayout.LabelField("Results");
+
+        _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
+        ++EditorGUI.indentLevel;
+
+        if (_results != null)
+        {
+            if (_results.Length != 0)
+                foreach (var scene in _results)
+                    EditorGUILayout.ObjectField(scene, typeof(UnityEngine.Object), false);
+            else EditorGUILayout.LabelField("Nothing found!");
+        }
+
+        --EditorGUI.indentLevel;
+        EditorGUILayout.EndScrollView();
+    }
+}
+</code></pre>
+
+<p>This code doesn't consider the following aspects:</p>
+
+<ul>
+  <li>Unity's In-built NPOT (not power of two) rounding feature, which (if enabled for an image) would guarantee that its resolution is compress-able</li>
+  <li>
+    Whether mipmap generation is enabled or disabled
+    <ul>
+      <li>If enabled, the resolution must be a power of two (rather than a multiple of 4) to be compress-able</li>
+    </ul>
+  </li>
+  <li>Performance</li>
+</ul>
+
+<p>If I were to spend more time improving this, these are the key areas I'd work on:</p>
+
+<ul>
+  <li>Support for including/excluding directories from the editor window</li>
+  <li>Stagger the search so it doesn't completely block the editor</li>
+</ul>
+
+<p>Questions? Please discuss via
+  <a href="" target="_blank">Twitter (pending)</a> or
+  <a href="" target="_blank">Reddit (pending)</a>.
+</p>
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
