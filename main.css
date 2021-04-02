@@ -399,6 +399,10 @@ hr
 
   .float-header
   {
+    /* To make sure it can be clicked despite the float...*/
+    position: relative;
+    z-index: 99;
+
     float: left;
 
     margin-right: 3rem;
