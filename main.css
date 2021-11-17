@@ -168,7 +168,9 @@ hr
 
 .svgs
 {
-  position: absolute;
+  float: left;
+  margin-right: 1em;
+  margin-bottom: 1em;
 }
 .svgs img
 {
@@ -409,10 +411,11 @@ hr
   }
   .svgs
   {
-    right: 100%;
-    left: -3.5rem;
+    float: none;
+    position: absolute;
+    left: 1rem;
 
-    padding-right: 1.5rem;
+    margin: 0;
   }
   .float-header header
   {
