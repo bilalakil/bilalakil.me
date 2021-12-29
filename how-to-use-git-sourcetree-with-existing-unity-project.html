@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
+    <title>How to Use Git (via SourceTree) with an Existing Unity Project - Bill's Spills</title>
+    <link href="main.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="container-inner">
+        <div class="svgs"></div>
+        <a class="float-header" href="/">
+          <header class="title">
+            <h1>Bill's<br/>Spills</h1>
+            <p class="name">Bilal Akil</p>
+          </header>
+        </a>
+        <main class="main">
+<h2>How to Use Git (via SourceTree) with an Existing Unity Project</h2>
+
+<p>I've found myself having to help people through this a few times at game jams and other projects so I'm trying to write it up for future 😛</p>
+
+<p>This article is for non-programmers who need to work with an existing Unity project and don't need to get too deep into the Git world.</p>
+
+<p>It assumes that a Unity project already exists and has a Git repository that you want to work with, managed by someone with more Git experience.</p>
+
+<p>These topics will be covered:</p>
+
+<ul>
+  <li><a href="#git-basics">Git Basics</a></li>
+  <li><a href="#installation-setup">SourceTree / Unity Installation and Setup</a></li>
+  <li><a href="#clone-and-run">Cloning and Running the Project</a></li>
+  <!--
+  <li><a href="#simple-workflow">A Simple Workflow</a></li>
+  <li><a href="#merge-conflicts">Be Careful for Merge Conflicts</a></li>
+  -->
+</ul>
+
+<h3 id="git-basics">Git Basics</h3>
+
+<p>I won't pretend I'm the best writer for this kind of stuff 😛 I'd recommend <a href="https://leetusman.com/nosebook/git-for-artists" target="_blank">Git For Misfits (and artists)</a> by Lee Tusman, particularly these two sections at the top:</p>
+
+<ul>
+  <li>What's Git for and why would I use it?</li>
+  <li>What's the difference between Git, GitHub (and others)</li>
+</ul>
+
+<p>Something to add to that last point is the existence of <strong>Git Clients</strong>. The official Git software can be prohibitively hard to use for many, as it's a command-line tool without a graphical interface.</p>
+
+<p>Other Git clients can be installed, many of which include graphical interfaces, to make Git's underlying functionality more accessible. In this post I'll be talking about using <a href="https://www.sourcetreeapp.com/" target="_blank">SourceTree</a>.</p>
+
+<h3 id="installation-setup">SourceTree / Unity Installation and Setup</h3>
+
+<p><strong>Source Tree:</strong></p>
+
+<ol>
+  <li>
+    Follow the prompts on the official <a href="https://www.sourcetreeapp.com/" target="_blank">SourceTree website</a> to download and start installing the app
+    <ul>
+      <li>Note that you can skip the Atlassian sign-in step!</li>
+      <li>The other default values seem to be fine so you can click ok ok ok if you like</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Unity:</strong></p>
+
+<ol>
+  <li>Download and install <a href="https://unity.com/download" target="_blank">Unity Hub</a></li>
+  <li>
+    You'll need to sign into Unity and activate a license to use it:
+    <ol>
+      <li>Click the profile icon to the top-left to login / create a new account</li>
+      <li>Press the cog to open Preferences if it's not already open, and select the Licenses tab</li>
+      <li>Press Add, Get a free personal license, Accept (assuming you meet the criteria!)</li>
+      <li>Close Preferences</li>
+    </ol>
+  </li>
+  <li>Ask the team what Unity version is being used for this project</li>
+  <li>
+    Find the correct version in the <a href="https://unity3d.com/get-unity/download/archive" target="_blank">Unity Download Archive</a> and press the button to download via Unity Hub
+    <ul>
+      <li>You should be fine to untick all of the modules to install, but you might want to confirm with someone else on the team</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="clone-and-run">Cloning and Running the Project</h3>
+
+<p>For this exercise we'll assume the Git repository is being hosted on GitHub, and that you already have a GitHub account with permission to access the project.</p>
+
+<ol>
+  <li>Open SourceTree</li>
+  <li>File > Clone / New</li>
+  <li>Enter the project's GitHub URL into the Source Path / URL field, e.g. https://github.com/doodad-games/unitower</li>
+  <li>A popup should appear prompting you to login to GitHub. Do it and approve OAuth access</li>
+  <li>Click the Browse button besides Destination Path and specify where on your computer you'd like your copy of the project to reside</li>
+  <li>Click Clone and wait</li>
+  <li>Once cloned, the view should change to show you the repository's history or something along those lines</li>
+  <li>If a popup mentioning Git LFS appears, check the "Don't ask me again" box and click Yes to download anything that's missing</li>
+</ol>
+
+<p>You should now have a complete copy of the project on your computer. To run it in Unity:</p>
+
+<ol>
+  <li>Open Unity Hub</li>
+  <li>Open the Projects tab</li>
+  <li>Click the Open button and select the folder you just cloned</li>
+</ol>
+
+<p>You should be good to run the project in Unity! Note that the first load will likely take a long time.</p>
+
+<!--
+<h3 id="simple-workflow">A Simple Workflow</h3>
+
+<h3 id="merge-conflicts">Be Careful for Merge Conflicts</h3>
+-->
+
+<hr/>
+
+<p>Hopefully this was helpful 🙂 But be sure to consult the person who set up your git repository before assuming any workflow suggested here is suitable for your particular project.</p>
+
+<!--
+<p>Questions? Please discuss via
+  <a href="mailto:mail@bilalakil.me">email</a>,
+  <a href="" target="_blank">Twitter</a> or
+  <a href="" target="_blank">Reddit</a>.
+</p>
+-->
+        </main>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
