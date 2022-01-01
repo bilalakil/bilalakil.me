@@ -32,19 +32,26 @@
   <li><a href="#git-basics">Git Basics</a></li>
   <li><a href="#installation-setup">SourceTree / Unity Installation and Setup</a></li>
   <li><a href="#clone-and-run">Cloning and Running the Project</a></li>
-  <!--
   <li><a href="#simple-workflow">A Simple Workflow</a></li>
+<!--
   <li><a href="#merge-conflicts">Be Careful for Merge Conflicts</a></li>
-  -->
+-->
 </ul>
 
 <h3 id="git-basics">Git Basics</h3>
 
-<p>I won't pretend I'm the best writer for this kind of stuff 😛 I'd recommend <a href="https://leetusman.com/nosebook/git-for-artists" target="_blank">Git For Misfits (and artists)</a> by Lee Tusman, particularly these two sections at the top:</p>
+<p>I won't pretend I'm the best writer for this kind of stuff 😛 Here's a hyper-focused list of things to watch/read about it:</p>
 
 <ul>
-  <li>What's Git for and why would I use it?</li>
-  <li>What's the difference between Git, GitHub (and others)</li>
+  <li><a href="https://www.youtube.com/watch?v=2ReR1YJrNOM" target="_blank">What is Git? Explained in 2 Minutes!</a> by Programming with Mosh gives a good high-level explanation of why something like Git is useful</li>
+  <li>
+    <a href="https://www.youtube.com/watch?v=hwP7WQkmECE" target="_blank">Git Explained in 100 Seconds</a> by Fireship gives a short explanation of how it works. Additionally note the following:
+    <ul>
+      <li>The branching and merging parts are out of scope for this guide so don't worry if it seems difficult</li>
+      <li>Something that is in scope but wasn't covered is that your commits will only live on your computer until you <code>push</code> it to a server. Then collaborators need to <code>fetch</code> or <code>pull</code> those commits down to their local repositories</li>
+    </ul>
+  </li>
+  <li>The "What's the difference between Git, GitHub (and others)" section of <a href="https://leetusman.com/nosebook/git-for-artists" target="_blank">Git For Misfits (and artists)</a> by Lee Tusman (although it's a good read overall if you'd like)</li>
 </ul>
 
 <p>Something to add to that last point is the existence of <strong>Git Clients</strong>. The official Git software can be prohibitively hard to use for many, as it's a command-line tool without a graphical interface.</p>
@@ -53,13 +60,14 @@
 
 <h3 id="installation-setup">SourceTree / Unity Installation and Setup</h3>
 
-<p><strong>Source Tree:</strong></p>
+<p><strong>SourceTree:</strong></p>
 
 <ol>
   <li>
     Follow the prompts on the official <a href="https://www.sourcetreeapp.com/" target="_blank">SourceTree website</a> to download and start installing the app
     <ul>
       <li>Note that you can skip the Atlassian sign-in step!</li>
+      <li>It'll ask for your name and email address at some point. You should use the same values here as what you use on GitHub, GitLab, etc.</li>
       <li>The other default values seem to be fine so you can click ok ok ok if you like</li>
     </ul>
   </li>
@@ -112,9 +120,38 @@
 
 <p>You should be good to run the project in Unity! Note that the first load will likely take a long time.</p>
 
-<!--
 <h3 id="simple-workflow">A Simple Workflow</h3>
 
+<figure>
+  <img src="imgs/sourcetree-key-points.png" alt=""/>
+  <figcaption>
+    An image of the SourceTree UI with letters A-G highlighting key points that'll be referenced in the steps that follow.
+  </figcaption>
+</figure>
+
+<ol>
+  <li>Pull (<code>A</code>) at the beginning of a working session</li>
+  <li>Be careful not to change files that other people on the team may also be working on. Chat and coordinate as needed</li>
+  <li>Work work work</li>
+  <li>If you're going to stop and start again later, be sure to pull (<code>A</code>) again when each new working session begins!</li>
+  <li>
+    When your work is ready to be shared with the team:
+    <ol>
+      <li>Pull (<code>A</code>) again</li>
+      <li>Go to File Status (<code>B</code>)</li>
+      <li>Review the files shown under Unstaged files (<code>C</code>) and Staged files (<code>D</code>). If there's anything showing up as changed that you don't think should be, consult with the team</li>
+      <li>When the changes look good, press Stage All (<code>E</code>)</li>
+      <li>Write a very short description noting the nature of the staged changes (<code>F</code>), e.g. "Added FMOD plugin"; "New menu track"; "Various gameplay rebalances"</li>
+      <li>Press Commit (<code>G</code>) and then Push (<code>A</code>)</li>
+    </ol>
+  </li>
+  <li>Let the team know you just pushed</li>
+  <li>Repeat</li>
+</ol>
+
+<p>This recommendation can work with multiple people on a team exercising it simultaneously, but it entirely depends on the fact that people aren't working on the same files at the same time.</p>
+
+<!--
 <h3 id="merge-conflicts">Be Careful for Merge Conflicts</h3>
 -->
 
