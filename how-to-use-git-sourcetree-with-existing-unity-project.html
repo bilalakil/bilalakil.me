@@ -127,6 +127,8 @@
 
 <h3 id="simple-workflow">A Simple Workflow</h3>
 
+<p>Now the project's running, but how do you actually go about working, sending your changes to others, and getting others' changes running on your PC?</p>
+
 <figure>
   <img src="imgs/sourcetree-key-points.png" alt=""/>
   <figcaption>
@@ -146,7 +148,6 @@
         In Unity, press File > Save project
         <ul>
           <li>This is different to the standard save hotkey which saves the currently open scene or prefab</li>
-          <li>This is needed to ensure that changes to animations or some other assets are actually saved to disk instead of held in memory</li>
         </ul>
       </li>
       <li>In SourceTree, pull (<code>A</code>) again</li>
@@ -165,7 +166,7 @@
 
 <h3 id="merge-conflicts">Be Careful for Merge Conflicts</h3>
 
-<p>Git itself actually supports multiple people editing the same file via its <code>merge</code> functionality, but it requires much deeper Git knowledge to do safely. That's why the suggested simple workflow depends on completely avoiding this scenario.</p>
+<p>Git supports multiple people editing the same file through its <code>merge</code> functionality, but it requires deeper Git knowledge to be used safely. That's why the suggested simple workflow depends on completely avoiding this scenario.</p>
 
 <p>When two files are modified and Git doesn't know how to automatically merge them, merge conflicts arise and need to be resolved. Depending on the file type, this may mean someone needs to revert their work to accept someone else's version, and then redo theirs on top of it.</p>
 
@@ -173,22 +174,20 @@
 
 <p>Unity projects are prone to merge conflicts, so the project needs to be well organised to avoid them. <em>Scenes, prefabs</em>, animations, images, etc., all cannot be auto-merged, so if two people change them then someone's work will need to reverted.</p>
 
-<p>I've emphasised scenes and prefabs there because they're the most common source of conflict. To reiterate: <em>two people cannot modify the same scene or prefab at the same time, or someone's work will probably be lost!</em></p>
-
 <p>I apply these organisation strategies to try and minimise the chance of merge conflicts in my recent Unity projects:</p>
 
 <ul>
   <li>Scenes contain a couple of high level prefabs and nothing else. Thus scenes are hardly being modified at all - instead their prefabs are. e.g. a Dungeon scene only contains two prefabs: DungeonMap and GameFramework</li>
   <li>High level prefabs are further broken down to contain multiple smaller prefabs. Most changes will occur in the smaller, more specific prefabs, which are more focused and less likely to have merge conflicts occur. e.g. GameFramework contains the GameplayUI, SaveLoadSystem, TutorialSystem, and NotificationSystem prefabs. Any UI changes will only affect that one GameplayUI prefab - not the entire GameplayFramework - so one person can work on the UI while someone else works on the tutorial, for example</li>
   <li>
-    Always be careful that you're actually modifying the intended prefab, rather than specifying overrides to that prefab on a higher level prefab or the scene itself
+    Always be careful that you're actually modifying the intended prefab, instead of specifying overrides to that prefab on a higher level prefab or the scene itself
     <ul>
       <li>The easiest way to be sure that you're directly modifying the prefab is by always double-clicking its file in the Project tab to make sure it's loaded instead of the scene or something else</li>
       <li>This is also why you should check the list of modified files before committing and pushing: it's your chance to catch out accidentally modified files like this and avoid merge conflicts</li>
     </ul>
   </li>
   <li>
-    Different disciplines are given clear "boundaries" in terms of files/folders to do their work in. e.g. Assets/Visual, Assets/Audio, Assets/Gameplay, Assets/UI, Assets/Game Design, etc...
+    Different disciplines have clear "boundaries" in terms of files/folders to do their work in. e.g. Assets/Visual, Assets/Audio, Assets/Gameplay, Assets/UI, Assets/Game Design, etc...
     <ul>
       <li>Each team member is designated one of these directories to work within</li>
       <li>They should be very careful if they need to modify something outside of their designated directory. Communicate with the member of the team who's been designated to that directory to coordinate</li>
@@ -203,11 +202,9 @@
 <p>Hopefully this was helpful 🙂 But be sure to consult the person who set up your git repository before assuming any workflow suggested here is suitable for your particular project.</p>
 
 <p>Questions? Please discuss via
-  <a href="mailto:mail@bilalakil.me">email</a>
-<!--
-  <a href="" target="_blank">Twitter</a> or
-  <a href="" target="_blank">Reddit</a>.
--->
+  <a href="mailto:mail@bilalakil.me">email</a>,
+  <a href="https://twitter.com/bilalakil/status/1479678594976604160" target="_blank">Twitter</a> or
+  <a href="https://www.reddit.com/r/gamedev/comments/ryrugd/i_wrote_a_little_guide_on_setting_up_and_using/" target="_blank">Reddit</a>.
 </p>
         </main>
       </div>
