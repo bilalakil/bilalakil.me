@@ -247,7 +247,8 @@ hr
 .main p,
 .main ol,
 .main ul,
-.main pre
+.main pre,
+.main details
 {
   font-family: 'Open Sans', sans-serif;
   line-height: 1.4;
