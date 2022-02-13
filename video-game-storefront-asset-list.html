@@ -27,6 +27,7 @@
 <details>
   <summary>Sources</summary>
   <ul>
+    <li><a href="https://developer.apple.com/design/human-interface-guidelines/ios/icons-and-images/app-icon/">App icon</a></li>
     <li><a href="https://help.apple.com/app-store-connect/#/devd274dd925">Screenshot specs</a></li>
     <li><a href="https://help.apple.com/app-store-connect/#/dev4e413fcb8">App preview / trailer specs</a></li>
   </ul>
@@ -35,7 +36,12 @@
 <h4>Mandatory</h4>
 
 <ul>
-  <li>App icon: 1024 x 1024px resolution</li>
+  <li>
+    App icon: 1024 x 1024px resolution
+    <ul>
+      <li>Should be a square. Apple will automatically round the corners for you, and the rounding may change over time / OS</li>
+    </ul>
+  </li>
   <li>
     Screenshots. 1 of each of the following resolutions are mandatory; any more are optional (limited to 10 each):
     <ul>
@@ -72,7 +78,13 @@
 <h4>Mandatory</h4>
 
 <ul>
-  <li>App icon: 512 x 512px resolution. <em>You can resize the iOS app icon for this</em></li>
+  <li>
+    App icon: 512 x 512px resolution. <em>You can resize the iOS app icon for this</em>
+    <ul>
+      <li>Requires both a regular icon, and also a version of it with the background and foreground separated into two images</li>
+      <li>Those can be fed into <a href="https://developer.android.com/studio/write/image-asset-studio">Android Studio's Image Asset Studio</a> to have all the different icons generated for you</li>
+    </ul>
+  </li>
   <li><a href="https://support.google.com/googleplay/android-developer/answer/9866151#zippy=%2Cfeature-graphic">Feature graphic</a>: 1024 x 500px resolution</li>
   <li>
     Screenshots. A minimum of 2 screenshots (total) are required; any more are optional (limited to 8 for phones and 8 for iPads). Further restrictions:
